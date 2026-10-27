@@ -1,0 +1,417 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Meet Lou Complaint Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="robots" content="noindex, nofollow">
+</head><body>
+<style>
+  /* Layout: the COLP's working screen for one complaint. Left: the complaint, each allegation with
+     the evidence linked to it, then the full chronology with include-in-bundle ticks.
+     Right (sticky): the bundle being assembled, the final-response checklist, notes. Same tokens as the firm dashboard. */
+  :root{
+    --page:#F6F3ED; --card:#FFFDF8; --panel:#F0EBE3; --ink:#1A1A18; --ink2:#4E4A43;
+    --muted:#7A746A; --rule:#E4DED4; --accent:#C4562A; --mark:#F6E3A1;
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --good-text:#006300; --s1:#2a78d6;
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+      --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --mark:rgba(246,214,110,.24);
+      --good-text:#0ca30c; --s1:#3987e5; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+    --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --mark:rgba(246,214,110,.24);
+    --good-text:#0ca30c; --s1:#3987e5; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;
+    -webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{background:none;border:0;padding:0;cursor:pointer;text-align:left}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  .num{font-variant-numeric:tabular-nums}
+  .demobar{background:var(--ink);color:var(--page);font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+    text-transform:uppercase;text-align:center;padding:6px 12px}
+  .wrap{max-width:1320px;margin:0 auto;padding:22px clamp(16px,3vw,32px) 64px}
+  .eyebrow{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  a.back{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);text-decoration:none}
+  a.back:hover{color:var(--accent)}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.6vw,42px);line-height:1.05;letter-spacing:-.015em;margin:8px 0 0}
+  .sub{color:var(--ink2);margin:6px 0 0}
+  h2{font-size:15px;font-weight:600;margin:0}
+  .h2row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+  .h2row .note{font-size:12px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 18px 20px;min-width:0}
+  .st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap}
+  .st svg{width:14px;height:14px;flex:0 0 auto}
+
+  /* status strip */
+  .strip{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr);gap:16px;margin-top:20px}
+  @media (max-width:980px){.strip{grid-template-columns:1fr}}
+  .stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .stages div{padding-top:10px;position:relative;font-size:12px;color:var(--muted);line-height:1.35}
+  .stages div::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;border-radius:2px;background:var(--rule)}
+  .stages div.on{color:var(--ink2)} .stages div.on::before{background:var(--ink2)}
+  .stages div.cur{color:var(--ink);font-weight:500} .stages div.cur::before{background:var(--accent)}
+  .stages b{display:block;font-weight:500;color:var(--ink)}
+  .clock .big{font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1;margin-top:6px}
+  .meter{height:8px;border-radius:4px;background:var(--rule);margin-top:12px;position:relative;overflow:hidden}
+  .meter i{position:absolute;left:0;top:0;bottom:0;background:var(--ink2);border-radius:4px;display:block}
+  .meterlbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px}
+
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;margin-top:16px;align-items:start}
+  @media (max-width:1080px){.layout{grid-template-columns:1fr}}
+  .side{position:sticky;top:16px;display:grid;gap:16px}
+  @media (max-width:1080px){.side{position:static}}
+  .col{display:grid;gap:16px;min-width:0}
+
+  .quote{margin:0;padding:14px 16px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0;
+    font-size:15px;line-height:1.55}
+  .quote .meta{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+
+  /* allegations */
+  .alg{border-top:1px solid var(--rule);padding-top:16px;margin-top:16px}
+  .alg:first-of-type{border-top:0;padding-top:0;margin-top:0}
+  .alg .code{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--accent)}
+  .alg h3{font-size:16.5px;font-weight:600;margin:4px 0 0;line-height:1.35}
+  .alg .count{font-size:12.5px;color:var(--ink2);margin-top:4px}
+  .chain{margin-top:12px;display:grid;gap:0;position:relative;padding-left:18px}
+  .chain::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:var(--rule)}
+  .link{position:relative;padding:8px 0}
+  .link::before{content:"";position:absolute;left:-17px;top:14px;width:9px;height:9px;border-radius:50%;background:var(--card);
+    border:2px solid var(--ink2)}
+  .link.key::before{background:var(--accent);border-color:var(--accent)}
+  .link .ts{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted)}
+  .link .what{font-size:13.5px;margin-top:2px}
+  .link .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-left:6px;font-weight:500}
+  .link blockquote{margin:6px 0 0;font-size:13.5px;color:var(--ink2);padding-left:10px;border-left:2px solid var(--rule)}
+  .link blockquote mark{background:var(--mark);color:inherit;padding:0 2px}
+  .remedy{margin-top:10px;font-size:13px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:10px 12px}
+
+  /* chronology */
+  .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--card)}
+  .seg button{padding:4px 11px;border-radius:999px;font-size:12px;color:var(--ink2);white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+  .item{display:grid;grid-template-columns:22px 84px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--rule)}
+  .item:first-child{border-top:0}
+  @media (max-width:640px){.item{grid-template-columns:22px minmax(0,1fr)}.item .when{grid-column:2}.item .right{grid-column:2;justify-self:start}}
+  .item input{width:16px;height:16px;margin:2px 0 0;accent-color:var(--ink)}
+  .item .when{font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:1.4;padding-top:2px}
+  .item h4{font-size:13.5px;font-weight:600;margin:0;line-height:1.35}
+  .item .kind{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .item .meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:4px;font-size:12px;color:var(--ink2)}
+  .item .right{display:flex;gap:6px;align-items:center}
+  .item.linked h4::after{content:"Linked";font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:1px 6px;margin-left:8px;vertical-align:2px}
+  .more{font-size:12px;color:var(--ink2);border:1px solid var(--rule);border-radius:999px;padding:3px 10px;white-space:nowrap}
+  .detail{grid-column:3 / -1;margin-top:2px;font-size:13px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:10px 12px}
+  @media (max-width:640px){.detail{grid-column:2}}
+  .detail mark{background:var(--mark);color:inherit;padding:0 2px}
+
+  /* side */
+  .kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 12px;font-size:13px}
+  .kv dt{color:var(--ink2)} .kv dd{margin:0;text-align:right;font-weight:500}
+  select{background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:5px 10px;font-size:12.5px}
+  .toggle{display:flex;align-items:center;gap:10px;font-size:13px;margin-top:12px}
+  .toggle input{width:16px;height:16px;accent-color:var(--ink)}
+  .wide{display:block;width:100%;text-align:center;padding:10px 14px;border-radius:10px;font-size:13.5px;font-weight:500;
+    background:var(--ink);color:var(--page);margin-top:14px}
+  .result{font-size:12.5px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:10px 12px;margin-top:12px}
+  .result b{color:var(--ink)}
+  .ver{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--rule);font-size:12.5px}
+  .ver:first-child{border-top:0}
+  .ver .v{font-family:var(--mono);font-size:10.5px;color:var(--accent);padding-top:1px}
+  .ver span.m{display:block;color:var(--muted);font-size:12px}
+  .check{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--rule);font-size:13px;align-items:start}
+  .check:first-child{border-top:0}
+  .check input{width:16px;height:16px;margin:1px 0 0;accent-color:var(--ink)}
+  .check.done span{color:var(--muted);text-decoration:line-through}
+  .check small{display:block;color:var(--muted);font-size:11.5px}
+  textarea{width:100%;min-height:70px;border:1px solid var(--rule);border-radius:10px;padding:9px 11px;background:var(--card);resize:vertical;font-size:13px}
+  .addnote{font-size:12.5px;font-weight:500;border:1px solid var(--rule);border-radius:999px;padding:5px 12px;margin-top:8px}
+  .nt{padding:10px 0;border-top:1px solid var(--rule);font-size:13px}
+  .notes .nt:first-child{border-top:0}
+  .nt .by{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted)}
+  .audit{font-size:12.5px;color:var(--ink2)}
+  .audit div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;padding:6px 0;border-top:1px solid var(--rule)}
+  .audit div:first-child{border-top:0}
+  .audit span{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+</style>
+
+<div class="demobar">Demo matter · example data, not a real complaint</div>
+
+<div class="wrap">
+  <a class="back" href="/demo/firm-dashboard/">← Supervision</a>
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-end;margin-top:12px">
+    <div>
+      <span class="eyebrow">Complaint · MTR-0988 · leasehold purchase</span>
+      <h1>7 Cedar Court, Hale WA15</h1>
+      <p class="sub">Nadia and Paul Ross · completed 14 Aug · fee earner Sophie Lane · handled by Helen Barker, compliance officer</p>
+    </div>
+    <span class="st" id="holdChip"></span>
+  </div>
+
+  <div class="strip">
+    <div class="card">
+      <div class="h2row"><h2>Where the complaint is</h2><span class="note">Thu 4 Sep 2026 · 14:10</span></div>
+      <div class="stages">
+        <div class="on"><b>Received</b>28 Aug, 09:14</div>
+        <div class="on"><b>Acknowledged</b>28 Aug, 10:05</div>
+        <div class="cur"><b>Investigating</b>Now</div>
+        <div><b>Final response</b>Due by 23 Oct</div>
+        <div><b>Ombudsman</b>Open to the clients after 23 Oct, or after the final response</div>
+      </div>
+    </div>
+    <div class="card clock">
+      <span class="eyebrow">Eight-week window</span>
+      <div class="big num">49 days left</div>
+      <div class="meter" role="img" aria-label="Day 7 of 56"><i style="width:12.5%"></i></div>
+      <div class="meterlbl"><span>Received 28 Aug</span><span>Day 7 of 56</span><span>23 Oct</span></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="col">
+      <div class="card">
+        <div class="h2row"><h2>The complaint</h2><span class="note">Email to the matter address</span></div>
+        <blockquote class="quote"><span class="meta">From Nadia Ross · 28 Aug 2026, 09:14</span>
+          We completed on 14 August and two weeks later received a demand for £6,840 towards replacing the roof. Nobody told us about this before we bought. If we had known, we would not have gone ahead at this price. We want the firm to cover the cost.</blockquote>
+      </div>
+
+      <div class="card">
+        <div class="h2row"><h2>What is alleged, and what is on the record</h2><span class="note">Lou links the evidence. The firm decides what it shows.</span></div>
+        <div id="allegations"></div>
+      </div>
+
+      <div class="card">
+        <div class="h2row"><h2>Chronology</h2>
+          <div class="tools">
+            <div class="seg" role="group" aria-label="Show">
+              <button data-f="all" aria-pressed="true">Everything</button>
+              <button data-f="linked" aria-pressed="false">Linked to the complaint</button>
+              <button data-f="calls" aria-pressed="false">Calls</button>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0 0 6px;font-size:12.5px;color:var(--muted)">Tick what goes in the bundle. Every item is timestamped and nothing here can be edited.</p>
+        <div id="chron"></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <div class="h2row"><h2>Bundle</h2><span class="note" id="verLabel">Version 2 · draft</span></div>
+        <dl class="kv"><dt>Items</dt><dd class="num" id="bItems"></dd><dt>Pages</dt><dd class="num" id="bPages"></dd>
+          <dt>Third-party data</dt><dd id="bRedact"></dd></dl>
+        <label style="display:block;margin-top:14px;font-size:12.5px;color:var(--ink2)" for="recip">Prepared for</label>
+        <select id="recip" style="margin-top:6px;width:100%">
+          <option value="clients">Nadia and Paul Ross, with the final response</option>
+          <option value="insurer">The firm's insurer</option>
+          <option value="leo">The Legal Ombudsman</option>
+        </select>
+        <label class="toggle"><input type="checkbox" id="redact" checked> Redact third-party personal data</label>
+        <div id="bAction"><button class="wide" id="prep">Prepare version 2</button></div>
+        <div style="margin-top:16px"><span class="eyebrow" style="margin-bottom:4px">Versions sent</span><div id="versions"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="h2row"><h2>Final response</h2><span class="note">Due by 23 Oct</span></div>
+        <div id="checks"></div>
+      </div>
+
+      <div class="card">
+        <div class="h2row"><h2>Notes</h2><span class="note">Firm only · never in a bundle</span></div>
+        <div class="notes" id="notes"></div>
+        <label for="noteText" class="eyebrow" style="margin:10px 0 6px">Add a note</label>
+        <textarea id="noteText" placeholder="What you checked, who you spoke to, what you decided"></textarea>
+        <button class="addnote" id="addNote">Add note</button>
+      </div>
+
+      <div class="card">
+        <div class="h2row"><h2>Who has looked at this</h2></div>
+        <div class="audit" id="audit"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); };
+  function icon(kind){
+    if (kind === "good") return '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--good)"/><path d="M4.8 8.3 7 10.4l4.2-4.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (kind === "warn") return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6 15 14H1z" fill="var(--warn)"/><path d="M8 6v3.6" stroke="#1A1A18" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.8" r=".95" fill="#1A1A18"/></svg>';
+    return '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="var(--muted)" stroke-width="1.3"/><path d="M8 7.2v4" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="5" r=".9" fill="var(--muted)"/></svg>';
+  }
+  function chip(kind, label){ return '<span class="st">' + icon(kind) + esc(label) + '</span>'; }
+  $("holdChip").innerHTML = chip("info", "On legal hold since 28 Aug · retention paused");
+
+  /* ---------------- the record ---------------- */
+  // id, when (date, time), kind, title, meta, pages, flags {linked, third, call}, detail html
+  var ITEMS = [
+    ["i01","12 Jun","09:30","Email","Client care pack sent","Read by Nadia · 12 Jun 18:02",3,{}],
+    ["i02","20 Jun","11:15","Document","Searches returned: local authority, drainage, environmental","Shared with the clients · read",8,{}],
+    ["i03","16 Jul","14:48","Document","Leasehold management pack (LPE1) from Cedar Court Management","Page 4: roof replacement, consultation under way, estimated £6,500 to £7,000 a flat",12,{linked:true,third:true},
+      'Page 4, planned major works: <mark>“A consultation under section 20 began in June 2026 for replacement of the main roof. The estimated contribution per flat is £6,500 to £7,000.”</mark> The pack also names two other leaseholders, which is why it is marked for redaction.'],
+    ["i04","18 Jul","11:02","Call","Call with Nadia Ross: the management pack explained","4 min 51 · consent given at 0:12 · 2 channels",3,{linked:true,call:true},
+      'Transcript at 3:12, Sophie Lane, channel 1: <mark>“The management pack says they’ve started consulting on a new roof. Your share is estimated at between six and a half and seven thousand pounds, and it would fall to you after completion.”</mark><br>At 3:41, Nadia Ross, channel 2: “Right. That’s a lot. Can we ask them to knock it off the price?”'],
+    ["i05","18 Jul","11:20","Summary","Plain-English summary of the call, approved by Sophie Lane","Major works: roof replacement planned, about £6,500 to £7,000 per flat, payable after completion",1,{linked:true},
+      'What was agreed: “Sophie will ask the seller’s solicitors whether the seller will reduce the price or hold back money for the roof works. Nadia and Paul will decide whether to proceed once they have the answer.”'],
+    ["i06","18 Jul","19:42","Receipt","Summary opened by Nadia Ross","Read receipt · client timeline",1,{linked:true}],
+    ["i07","19 Jul","08:31","Email","From Paul Ross: “understood about the roof”","To the matter address · SPF and DKIM pass",1,{linked:true},
+      '<mark>“Thanks Sophie, understood about the roof.</mark> Can we ask the seller to contribute? If not we’ll need to think about it.”'],
+    ["i08","21 Jul","10:05","Email","To the seller’s solicitors: price reduction or retention for the roof works","Sent from the matter address",1,{linked:true,third:true}],
+    ["i09","23 Jul","15:40","Email","From the seller’s solicitors: the seller declines","Names the seller · marked for redaction",1,{linked:true,third:true}],
+    ["i10","24 Jul","16:40","Call","Call with Nadia Ross: decision to proceed","3 min 06 · consent given at 0:10 · 2 channels",2,{linked:true,call:true},
+      'Transcript at 1:05, Nadia Ross, channel 2: <mark>“We’ve talked about it and we still want to go ahead. We know about the roof.”</mark><br>At 1:19, Sophie Lane: “Understood. I’ll put that in writing for you both today.”'],
+    ["i11","24 Jul","18:03","Receipt","Summary of the 24 Jul call opened by Nadia Ross","Read receipt · client timeline",1,{linked:true}],
+    ["i12","31 Jul","12:00","Update","Contracts exchanged","Shared with the clients and the agent · read",1,{}],
+    ["i13","14 Aug","13:20","Update","Completion","Shared with the clients · read",1,{}],
+    ["i14","28 Aug","09:14","Email","Complaint received from Nadia Ross","To the matter address",1,{linked:true}],
+    ["i15","28 Aug","10:05","Email","Complaint acknowledged by Helen Barker","Read by Nadia · 28 Aug 12:40",1,{}],
+    ["i16","—","","Log","Consent log and audit trail for the matter","Every recording, approval and access",3,{}]
+  ].map(function(r){ return { id:r[0], date:r[1], time:r[2], kind:r[3], title:r[4], meta:r[5], pages:r[6],
+    linked:!!r[7].linked, third:!!r[7].third, call:!!r[7].call, detail:r[8] || "", inc:true, open:false }; });
+  var byId = {}; ITEMS.forEach(function(i){ byId[i.id] = i; });
+
+  var ALLEGATIONS = [
+    { code:"Allegation 1", text:"“Nobody told us about this before we bought.”",
+      chain:[["i03","","On the file"],["i04","Said",""],["i05","",""],["i06","Received",""],["i07","Acknowledged",""]] },
+    { code:"Allegation 2", text:"“If we had known, we would not have gone ahead at this price.”",
+      chain:[["i08","",""],["i09","",""],["i10","Decided",""],["i11","Received",""]] }
+  ];
+
+  function renderAllegations(){
+    $("allegations").innerHTML = ALLEGATIONS.map(function(a){
+      return '<div class="alg"><span class="code">' + a.code.toUpperCase() + '</span><h3>' + esc(a.text) + '</h3>' +
+        '<div class="count">' + a.chain.length + ' items on the record relate to this, in date order.</div><div class="chain">' +
+        a.chain.map(function(c){ var it = byId[c[0]];
+          var q = it.call || it.kind === "Email" && it.detail ? '<blockquote>' + it.detail.split("<br>")[0] + '</blockquote>' : "";
+          return '<div class="link' + (c[1] ? " key" : "") + '"><span class="ts">' + esc(it.date + (it.time ? " · " + it.time : "") + " · " + it.kind) + '</span>' +
+            '<div class="what">' + esc(it.title) + (c[1] ? '<span class="tag">' + c[1] + '</span>' : '') + '</div>' + (c[1] === "Said" || c[1] === "Decided" || c[1] === "Acknowledged" ? q : "") + '</div>';
+        }).join("") + '</div></div>';
+    }).join("") +
+    '<div class="alg"><span class="code">REMEDY SOUGHT</span><h3>“We want the firm to cover the cost.”</h3>' +
+    '<div class="remedy">This is a request, not a question of fact, so Lou links no evidence to it. What to offer is the firm\'s decision, and it belongs in your notes and the final response.</div></div>';
+  }
+
+  var FILTER = "all";
+  function renderChron(){
+    var list = ITEMS.filter(function(i){ return FILTER === "all" || (FILTER === "linked" && i.linked) || (FILTER === "calls" && i.call); });
+    $("chron").innerHTML = list.map(function(i){
+      return '<div class="item' + (i.linked ? " linked" : "") + '">' +
+        '<input type="checkbox" data-inc="' + i.id + '"' + (i.inc ? " checked" : "") + ' aria-label="Include in bundle: ' + esc(i.title) + '">' +
+        '<div class="when">' + esc(i.date) + (i.time ? '<br>' + i.time : '') + '</div>' +
+        '<div><span class="kind">' + i.kind + '</span><h4>' + esc(i.title) + '</h4><div class="meta"><span>' + esc(i.meta) + '</span>' +
+          (i.third ? chip("warn", "Third-party data") : '') + '<span class="num">' + i.pages + (i.pages === 1 ? " page" : " pages") + '</span></div></div>' +
+        '<div class="right">' + (i.detail ? '<button class="more" data-open="' + i.id + '" aria-expanded="' + i.open + '">' + (i.open ? "Hide" : "View") + '</button>' : '') + '</div>' +
+        (i.open ? '<div class="detail">' + i.detail + '</div>' : '') + '</div>';
+    }).join("");
+  }
+
+  /* ---------------- bundle ---------------- */
+  var VERSIONS = [{ v:"v1", when:"2 Sep, 16:22", items:14, pages:38, to:"The firm’s insurer", by:"Helen Barker", red:true }];
+  var prepared = false;
+  var RECIP = { clients:"Nadia and Paul Ross", insurer:"The firm’s insurer", leo:"The Legal Ombudsman" };
+  function renderBundle(){
+    var inc = ITEMS.filter(function(i){ return i.inc; });
+    var pages = inc.reduce(function(s, i){ return s + i.pages; }, 0) + 2;
+    var third = inc.filter(function(i){ return i.third; }).length;
+    var red = $("redact").checked;
+    $("bItems").textContent = inc.length;
+    $("bPages").textContent = pages + " incl. index";
+    $("bRedact").textContent = third ? (red ? third + " items redacted" : third + " items, not redacted") : "None";
+    $("versions").innerHTML = VERSIONS.slice().reverse().map(function(v){
+      return '<div class="ver"><span class="v">' + v.v + '</span><div>' + esc(v.to) + '<span class="m">' + v.when + ' · ' + v.items + ' items · ' + v.pages +
+        ' pages · ' + (v.red ? "redacted" : "not redacted") + ' · ' + esc(v.by) + '</span></div></div>'; }).join("");
+    if (!prepared) $("bAction").innerHTML = '<button class="wide" id="prep">Prepare version 2</button>' +
+      (!red && third ? '<div class="result">This version would show third-party personal data to <b>' + esc(RECIP[$("recip").value]) + '</b>. That is usually right for the insurer and rarely right for the clients.</div>' : '');
+  }
+
+  /* ---------------- final response checklist ---------------- */
+  var CHECKS = [
+    ["Complaint acknowledged","28 Aug, within one working day",true],
+    ["Fee earner’s account recorded","Sophie Lane’s note, 29 Aug",true],
+    ["Evidence reviewed against each allegation","",false],
+    ["Decision on the remedy recorded in notes","",false],
+    ["Final response tells the clients about the Legal Ombudsman","Required in every final response",false],
+    ["Final response states the six-month limit to refer","If it’s missing, the clients can refer after six months",false],
+    ["Bundle version sent with the response recorded","",false],
+    ["Final response sent","By 23 Oct",false]
+  ];
+  function renderChecks(){
+    $("checks").innerHTML = CHECKS.map(function(c, k){
+      return '<label class="check' + (c[2] ? " done" : "") + '"><input type="checkbox" data-check="' + k + '"' + (c[2] ? " checked" : "") + '>' +
+        '<span>' + esc(c[0]) + (c[1] ? '<small>' + esc(c[1]) + '</small>' : '') + '</span></label>'; }).join("");
+  }
+
+  /* ---------------- notes and audit ---------------- */
+  var NOTES = [
+    ["Sophie Lane · 29 Aug, 11:20","Both calls are on the file. The clients asked the seller to contribute on 19 Jul, which was declined on 23 Jul, and they confirmed on the 24 Jul call that they wanted to proceed."],
+    ["Helen Barker · 2 Sep, 16:30","Version 1 sent to the insurer as a precaution. No admission made."]
+  ];
+  function renderNotes(){
+    $("notes").innerHTML = NOTES.slice().reverse().map(function(n){ return '<div class="nt"><div class="by">' + esc(n[0]) + '</div><div>' + esc(n[1]) + '</div></div>'; }).join("");
+  }
+  var AUDIT = [
+    ["Today 13:40","Helen Barker listened to the 18 Jul call from 3:00"],
+    ["2 Sep 16:22","Version 1 exported for the insurer by Helen Barker"],
+    ["29 Aug 11:20","Sophie Lane added a note"],
+    ["28 Aug 10:02","Legal hold placed by Helen Barker"]
+  ];
+  function renderAudit(){
+    $("audit").innerHTML = AUDIT.map(function(a){ return '<div><span>' + esc(a[0]) + '</span><span style="font-family:var(--sans);font-size:12.5px;color:var(--ink2)">' + esc(a[1]) + '</span></div>'; }).join("");
+  }
+
+  /* ---------------- wiring ---------------- */
+  document.addEventListener("click", function(e){
+    var t = e.target;
+    var f = t.closest("[data-f]");
+    if (f){ FILTER = f.dataset.f;
+      Array.prototype.forEach.call(document.querySelectorAll("[data-f]"), function(b){ b.setAttribute("aria-pressed", String(b === f)); });
+      renderChron(); return; }
+    var o = t.closest("[data-open]");
+    if (o){ var it = byId[o.dataset.open]; it.open = !it.open; renderChron();
+      if (it.open){ AUDIT.unshift(["Just now","Helen Barker opened the " + it.kind.toLowerCase() + " of " + it.date]); renderAudit(); }
+      return; }
+    if (t.id === "prep"){
+      var inc = ITEMS.filter(function(i){ return i.inc; });
+      var pages = inc.reduce(function(s, i){ return s + i.pages; }, 0) + 2;
+      VERSIONS.push({ v:"v2", when:"Just now", items:inc.length, pages:pages, to:RECIP[$("recip").value], by:"Helen Barker", red:$("redact").checked });
+      prepared = true;
+      $("verLabel").textContent = "Version 2 · prepared";
+      $("bAction").innerHTML = '<div class="result"><b>Version 2 prepared</b> for ' + esc(RECIP[$("recip").value]) + ': ' + inc.length + ' items in date order with an index, ' +
+        ($("redact").checked ? "third-party data redacted" : "not redacted") + '. Recorded in the versions list and the audit log.</div>';
+      AUDIT.unshift(["Just now","Version 2 prepared for " + RECIP[$("recip").value].toLowerCase() + " by Helen Barker"]);
+      renderBundle(); renderAudit(); return;
+    }
+    if (t.id === "addNote"){
+      var v = $("noteText").value.trim(); if (!v) { $("noteText").focus(); return; }
+      NOTES.push(["Helen Barker · just now", v]); $("noteText").value = ""; renderNotes();
+      AUDIT.unshift(["Just now","Helen Barker added a note"]); renderAudit(); return;
+    }
+  });
+  document.addEventListener("change", function(e){
+    var t = e.target;
+    if (t.dataset.inc){ byId[t.dataset.inc].inc = t.checked; renderBundle(); }
+    if (t.dataset.check){ CHECKS[+t.dataset.check][2] = t.checked; renderChecks(); }
+    if (t.id === "redact" || t.id === "recip"){
+      if (t.id === "recip") $("redact").checked = t.value !== "insurer";
+      renderBundle();
+    }
+  });
+
+  renderAllegations(); renderChron(); renderBundle(); renderChecks(); renderNotes(); renderAudit();
+})();
+</script>
+
+</body></html>

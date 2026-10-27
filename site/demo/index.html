@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lou Demo</title>
+<meta name="description" content="Interactive demo pages for Meet Lou, with fictional firms and example data.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#FAF8F4; --card:#FFFFFF; --panel:#F2EEE7; --ink:#1A1A18; --ink2:#4A463F; --muted:#6E695F;
+    --rule:#E2DCD2; --accent:#C4562A;
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#141310; --card:#1E1C18; --panel:#24221D; --ink:#F6F3ED; --ink2:#C9C3B8; --muted:#948D7F;
+      --rule:#2E2C26; --accent:#E0714A; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#141310; --card:#1E1C18; --panel:#24221D; --ink:#F6F3ED; --ink2:#C9C3B8; --muted:#948D7F;
+    --rule:#2E2C26; --accent:#E0714A; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .bar{background:var(--ink);color:var(--paper);text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:7px 16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px max(16px,env(safe-area-inset-left,0px)) 72px}
+  .brand{font-family:var(--serif);font-size:30px;line-height:1;text-decoration:none;color:var(--ink);display:inline-flex;align-items:baseline;gap:3px}
+  .brand::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(38px,6vw,60px);line-height:1;letter-spacing:-.01em;margin:28px 0 0}
+  .lede{color:var(--ink2);font-size:17px;max-width:40em;margin:14px 0 0}
+  .mono{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  section{margin-top:44px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:14px}
+  a.card{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:20px;text-decoration:none;color:inherit;min-height:150px}
+  a.card:hover{border-color:var(--ink2)}
+  a.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .card .who{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent)}
+  .card h2{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.08;margin:0}
+  .card p{margin:0;color:var(--ink2);font-size:14.5px}
+  .card .go{margin-top:auto;font-size:14px;font-weight:500}
+  .note{margin-top:44px;padding-top:18px;border-top:1px solid var(--rule);color:var(--muted);font-size:13.5px;max-width:52em}
+</style>
+</head>
+<body>
+<div class="bar">Demo · fictional firms and example data, not real client files</div>
+<main class="wrap">
+  <a class="brand" href="/">Lou</a>
+  <h1>See Lou on an example matter.</h1>
+  <p class="lede">Each page runs in your browser with made-up firms and clients. Start with the fee earner's day, then see what the client sees.</p>
+
+  <section>
+    <span class="mono">For the firm</span>
+    <div class="grid">
+      <a class="card" href="/demo/firm-dashboard/"><span class="who">Fee earner · compliance officer · practice manager</span><h2>Firm dashboard</h2><p>Approve drafted notes and summaries, track promises, and supervise every matter. Switch person at the bottom left.</p><span class="go">Open →</span></a>
+      <a class="card" href="/demo/results-report/"><span class="who">Partners</span><h2>Results report</h2><p>The monthly report against the firm's own four-week baseline: hours returned and the four numbers.</p><span class="go">Open →</span></a>
+      <a class="card" href="/demo/complaint-workspace/"><span class="who">Compliance officer</span><h2>Complaint workspace</h2><p>Each allegation linked to what's on the record, the eight-week clock, and the evidence bundle.</p><span class="go">Open →</span></a>
+      <a class="card" href="/demo/staff-access-log/"><span class="who">Compliance officer</span><h2>Lou staff access log</h2><p>Lou can't open a firm's files without the compliance officer approving it, and every request is logged.</p><span class="go">Open →</span></a>
+    </div>
+  </section>
+
+  <section>
+    <span class="mono">For the client</span>
+    <div class="grid">
+      <a class="card" href="/demo/client-app/"><span class="who">Buyer · conveyancer · estate agent</span><h2>Client app</h2><p>What happens next, the shared timeline, and a plain-English summary of every approved call. Try the call and email demos.</p><span class="go">Open →</span></a>
+    </div>
+  </section>
+
+  <section>
+    <span class="mono">Inside Lou</span>
+    <div class="grid">
+      <a class="card" href="/demo/capture-health/"><span class="who">Lou team · illustration</span><h2>Capture health</h2><p>Is every call and email reaching the right matter? How Lou watches capture, with fictional firms.</p><span class="go">Open →</span></a>
+      <a class="card" href="/demo/pilot-console/"><span class="who">Lou team · illustration</span><h2>Pilot console</h2><p>The weekly review of whether pilot firms are actually using Lou, with fictional firms.</p><span class="go">Open →</span></a>
+    </div>
+  </section>
+
+  <p class="note">These are demonstrations, not the live product. Firm names, people, addresses, phone numbers and figures are fictional. <a href="/" style="color:inherit">Back to the website</a></p>
+</main>
+</body>
+</html>

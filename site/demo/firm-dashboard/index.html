@@ -1,0 +1,1376 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Meet Lou Firm Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="robots" content="noindex, nofollow">
+</head><body>
+<style>
+  /* Layout: firm dashboard. Sidebar = real navigation for the signed-in role, with a demo person switch at the foot;
+     top bar = search for any matter; a matter opens as its own page with a back button. Bottom tab bar on phones.
+     Chart marks use the validated categorical palette; brand accent is reserved for controls. */
+  :root{
+    --page:#F6F3ED; --card:#FFFDF8; --panel:#F0EBE3; --ink:#1A1A18; --ink2:#4E4A43;
+    --muted:#7A746A; --rule:#E4DED4; --accent:#C4562A; --accent-ink:#FFFDF8;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s1-track:#cde2fb; --deemph:#d3d0c7;
+    --grid:#ebe7df; --axis:#c3c2b7;
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b; --good-text:#006300;
+    --scrim:rgba(26,26,24,.28);
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+      --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --accent-ink:#121110;
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s1-track:#0d366b; --deemph:#45423c;
+      --grid:#2a2824; --axis:#3b3934; --good-text:#0ca30c; --scrim:rgba(0,0,0,.5);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+    --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --accent-ink:#121110;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s1-track:#0d366b; --deemph:#45423c;
+    --grid:#2a2824; --axis:#3b3934; --good-text:#0ca30c; --scrim:rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:14px;
+    line-height:1.5;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  .num{font-variant-numeric:tabular-nums}
+
+  .demobar{background:var(--ink);color:var(--page);font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.16em;text-transform:uppercase;text-align:center;padding:6px 12px}
+
+  .shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100% - 26px)}
+  aside{border-right:1px solid var(--rule);background:var(--panel);padding:20px 14px;
+    display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:calc(100vh - 26px);
+    overflow-y:auto}
+  .brand{font-family:var(--serif);font-size:28px;line-height:1;padding:2px 10px 4px}
+  .firm{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);padding:0 10px 18px}
+  .who{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:center;
+    padding:9px 10px;border-radius:10px;width:100%}
+  .who:hover{background:color-mix(in srgb,var(--card) 60%,transparent)}
+  .who[aria-pressed="true"]{background:var(--card);box-shadow:inset 3px 0 0 var(--accent)}
+  .av{width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--rule);
+    display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px}
+  .who b{display:block;font-weight:500;font-size:13.5px}
+  .who span span{display:block;font-size:12px;color:var(--muted)}
+  .asidefoot{margin-top:auto;padding:14px 10px 0;border-top:1px solid var(--rule);font-size:12px;
+    color:var(--muted);line-height:1.5}
+
+  main{padding:26px clamp(16px,3vw,36px) 60px;min-width:0}
+  .top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.6vw,40px);line-height:1.05;
+    letter-spacing:-.015em;margin:4px 0 0}
+  .eyebrow{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muted)}
+  .sub{color:var(--ink2);margin:6px 0 0;font-size:14px}
+  h2{font-size:15px;font-weight:600;letter-spacing:-.005em;margin:0}
+  .h2row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+  .h2row .note{font-size:12px;color:var(--muted)}
+  section.block{margin-top:26px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 18px 20px;
+    min-width:0}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+  .g2e{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media (max-width:1180px){.g2,.g2e{grid-template-columns:1fr}}
+  @media (max-width:900px){.g3{grid-template-columns:1fr}}
+
+  /* stat tiles */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:22px}
+  .tile{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 15px 15px}
+  .tile .lbl{font-size:12.5px;color:var(--ink2)}
+  .tile .val{font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-top:6px}
+  .tile .ctx{font-size:12px;color:var(--muted);margin-top:4px}
+
+  /* status chip: icon + label, never colour alone */
+  .st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink);
+    white-space:nowrap}
+  .st svg{width:14px;height:14px;flex:0 0 auto}
+  .st.muted{color:var(--muted)}
+
+  /* lists */
+  .q{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:12px;align-items:start;
+    padding:13px 0;border-top:1px solid var(--rule)}
+  .q:first-child{border-top:0;padding-top:2px}
+  .q svg.ic{width:16px;height:16px;margin-top:2px}
+  .q h3{font-size:14px;font-weight:600;margin:0;line-height:1.35}
+  .q p{margin:3px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.45}
+  .q .ref{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted)}
+  .q.done h3{color:var(--muted);text-decoration:line-through}
+  .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .btn{font-size:12.5px;font-weight:500;border:1px solid var(--rule);border-radius:999px;
+    padding:5px 12px;white-space:nowrap;background:var(--card)}
+  .btn:hover{border-color:var(--ink2)}
+  .btn.pri{background:var(--ink);color:var(--page);border-color:var(--ink)}
+  .btn.pri:hover{opacity:.88}
+  .okmsg{font-size:12px;color:var(--good-text);white-space:nowrap;display:inline-flex;gap:5px;
+    align-items:center}
+
+  .pgroup + .pgroup{margin-top:16px}
+  .pgroup .eyebrow{margin-bottom:6px}
+  .prom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:8px 0;
+    border-top:1px solid var(--rule);align-items:baseline}
+  .prom:first-of-type{border-top:0}
+  .prom b{font-weight:500;font-size:13.5px}
+  .prom span.m{display:block;font-size:12px;color:var(--muted)}
+  .prom .due{font-size:12px;color:var(--ink2);white-space:nowrap;text-align:right}
+
+  /* tables */
+  .tbl{overflow-x:auto;margin:0 -2px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:500;text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule);
+    white-space:nowrap}
+  td{padding:10px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.r,th.r{text-align:right}
+  tbody tr.click{cursor:pointer}
+  tbody tr.click:hover td{background:color-mix(in srgb,var(--panel) 70%,transparent)}
+  tbody tr.sel td{background:color-mix(in srgb,var(--s1) 8%,transparent)}
+  .addr{font-weight:500}
+  .small{font-size:12px;color:var(--muted)}
+  .pips{display:inline-flex;gap:3px;vertical-align:middle;margin-right:7px}
+  .pips i{width:14px;height:4px;border-radius:2px;background:var(--rule);display:block}
+  .pips i.on{background:var(--ink2)}
+
+  /* filters */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:30px;padding:12px 0;
+    border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--card)}
+  .seg button{padding:5px 12px;border-radius:999px;font-size:12.5px;color:var(--ink2);white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+  select{font:inherit;font-size:12.5px;color:var(--ink);background:var(--card);border:1px solid var(--rule);
+    border-radius:999px;padding:6px 12px}
+  .filters .scope{font-size:12px;color:var(--muted);margin-left:auto}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,2fr);gap:16px;margin-top:18px}
+  @media (max-width:1100px){.hero{grid-template-columns:1fr}}
+  .herocard .big{font-size:56px;font-weight:600;letter-spacing:-.035em;line-height:1;margin-top:10px}
+  .delta{font-size:13px;color:var(--good-text);margin-top:8px;font-weight:500}
+  .delta.bad{color:var(--ink2)}
+  .meter{position:relative;height:8px;border-radius:4px;background:var(--s1-track);margin-top:18px}
+  .meter i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--s1);display:block}
+  .meter b{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);border-radius:1px}
+  .meterlbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:7px}
+  .herocard p.gap{margin:16px 0 0;font-size:13px;color:var(--ink2);line-height:1.5}
+  .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  @media (max-width:700px){.kpis{grid-template-columns:1fr}}
+  .kpi .val{font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin-top:6px}
+  .kpi .base{font-size:12px;color:var(--muted);margin-top:3px}
+  .spark{display:block;width:100%;height:40px;margin-top:10px;overflow:visible}
+
+  /* charts */
+  .chartcard figure{margin:0}
+  .charthead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .charthead p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
+  .viewbtn{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink2);border:1px solid var(--rule);border-radius:999px;padding:4px 10px;white-space:nowrap}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:12.5px;color:var(--ink2)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:2px;display:block}
+  .plot{margin-top:10px;position:relative}
+  .plot svg{display:block;width:100%;overflow:visible}
+  .plot text{font-family:var(--sans);font-size:11px;fill:var(--muted)}
+  .plot text.v{fill:var(--ink);font-weight:500;font-size:12px}
+  .plot text.n{fill:var(--ink2);font-size:12.5px}
+  .hit{fill:transparent;cursor:default}
+  .hit:focus{outline:none}
+  .hit:focus-visible{stroke:var(--accent);stroke-width:2}
+
+  #tip{position:fixed;z-index:60;pointer-events:none;background:var(--card);border:1px solid var(--rule);
+    border-radius:10px;padding:9px 11px;box-shadow:0 6px 24px rgba(20,16,10,.14);font-size:12px;
+    min-width:150px;max-width:260px}
+  #tip .t{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  #tip .row{display:grid;grid-template-columns:12px auto 1fr;gap:7px;align-items:center;margin-top:5px}
+  #tip .row i{height:2px;border-radius:1px;display:block}
+  #tip .row b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+  #tip .row span{color:var(--ink2)}
+
+  .bars{display:grid;gap:9px;margin-top:6px}
+  .barrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 40px;gap:10px;align-items:center;
+    font-size:12.5px;color:var(--ink2)}
+  .barrow .track{height:8px;border-radius:4px;background:var(--grid);position:relative}
+  .barrow .track i{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0;background:var(--s1);display:block}
+  .barrow b{font-weight:500;color:var(--ink);text-align:right}
+
+  .kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;font-size:13px;margin-top:10px}
+  .kv dt{color:var(--ink2)} .kv dd{margin:0;text-align:right;font-weight:500}
+  .hold{border:1px solid var(--rule);border-radius:10px;padding:12px 13px;margin-top:12px;background:var(--panel)}
+  .hold h3{font-size:13.5px;font-weight:600;margin:4px 0 0}
+  .hold p{margin:4px 0 0;font-size:12.5px;color:var(--ink2)}
+
+  /* setup */
+  .quote{margin:12px 0 0;padding:13px 15px;border-left:2px solid var(--accent);background:var(--panel);
+    border-radius:0 8px 8px 0;font-size:14px;line-height:1.55}
+  .lines{display:grid;gap:9px;margin-top:10px}
+  .line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;font-size:13px;padding-bottom:9px;
+    border-bottom:1px solid var(--rule);align-items:baseline}
+  .line:last-child{border-bottom:0;padding-bottom:0}
+  .line span.m{display:block;font-size:12px;color:var(--muted)}
+  .pending{margin-top:10px;font-size:12.5px;color:var(--ink2);background:var(--panel);border-radius:8px;
+    padding:9px 11px}
+  .slot{color:var(--accent)}
+
+  /* drawer */
+  .scrim{position:fixed;inset:0;background:var(--scrim);z-index:40}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(470px,100%);background:var(--card);z-index:50;
+    border-left:1px solid var(--rule);display:flex;flex-direction:column;box-shadow:-16px 0 40px rgba(20,16,10,.12)}
+  .dhead{padding:16px 20px 14px;border-bottom:1px solid var(--rule);
+    padding-top:calc(16px + env(safe-area-inset-top,0px))}
+  .dhead .back{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:-6px 0 6px -4px;padding:6px 12px 6px 6px;
+    border-radius:999px;font-size:13.5px;font-weight:500;color:var(--ink)}
+  .dhead .back span{font-size:16px;line-height:1;color:var(--accent)}
+  .dhead .back:hover{background:var(--panel)}
+  .dhead .eyebrow{display:block}
+  .dhead h2{font-family:var(--serif);font-weight:400;font-size:27px;line-height:1.1;margin:6px 0 0;
+    letter-spacing:-.01em}
+  .dbody{flex:1;overflow-y:auto;padding:16px 20px 30px;padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
+  .stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px}
+  .stepper div{font-size:10.5px;color:var(--muted);padding-top:9px;position:relative}
+  .stepper div::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;border-radius:2px;background:var(--rule)}
+  .stepper div.on::before{background:var(--ink2)}
+  .stepper div.cur{color:var(--ink);font-weight:500}
+  .stepper div.cur::before{background:var(--accent)}
+  .dsec{margin-top:22px}
+  .ev{padding:10px 0;border-top:1px solid var(--rule)}
+  .ev:first-of-type{border-top:0}
+  .ev .meta{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .ev h4{font-size:13.5px;font-weight:600;margin:4px 0 0}
+  .ev .vis{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:5px;font-size:12px;color:var(--ink2)}
+  .dactions{display:grid;gap:8px;margin-top:22px}
+  .wide{display:block;width:100%;text-align:center;padding:10px 14px;border-radius:10px;font-size:13.5px;font-weight:500;
+    border:1px solid var(--rule)}
+  .wide.pri{background:var(--ink);color:var(--page);border-color:var(--ink)}
+  .wide.link{color:var(--accent);border-color:var(--accent);text-decoration:none}
+  .result{font-size:12.5px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:10px 12px}
+  .result b{color:var(--ink);font-weight:600}
+
+  /* today across your matters */
+  .tgroup{border-top:1px solid var(--rule);padding-top:12px;margin-top:12px}
+  .tghead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 8px 2px 8px}
+  .tghead .small{color:var(--muted)}
+  .titem{display:grid;grid-template-columns:44px 20px minmax(0,1fr) auto;gap:10px;align-items:start;width:100%;
+    padding:9px 8px;border-radius:10px;text-align:left}
+  .titem:hover{background:var(--panel)}
+  .titem .tt{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:2px}
+  .titem .tg{padding-top:1px}
+  .titem .tk{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .titem .th{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500;margin-top:2px}
+  .titem.unread .th{font-weight:600}
+  .udot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;flex:0 0 auto}
+  .titem .tm{display:block;font-size:12px;color:var(--ink2);margin-top:2px}
+  .titem .ts{padding-top:2px}
+  @media (max-width:640px){.titem{grid-template-columns:40px 18px minmax(0,1fr)}.titem .ts{grid-column:3}}
+
+  /* ===== app shell: real navigation, search, and a matter page instead of a drawer ===== */
+  .shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:calc(100vh - 26px)}
+  aside.nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:4px;
+    padding:18px 12px 16px;background:var(--panel);border-right:1px solid var(--rule)}
+  aside.nav .brand{padding:2px 12px 2px}
+  aside.nav .firm{padding:4px 12px 18px}
+  .navlink{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 12px;border-radius:9px;
+    font-size:14.5px;font-weight:500;color:var(--ink2);text-decoration:none}
+  .navlink:hover{background:color-mix(in srgb,var(--card) 65%,transparent);color:var(--ink)}
+  .navlink[aria-current="page"]{background:var(--card);color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+  .navlink .ext{color:var(--muted);font-size:13px}
+  .badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-ink);
+    font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+  .viewas{margin-top:auto;padding:14px 10px 2px;border-top:1px solid var(--rule)}
+  .viewas select{width:100%;margin-top:7px}
+  .viewas .small{margin:8px 0 0}
+  .mainwrap{min-width:0;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:10px clamp(16px,3vw,36px);
+    background:color-mix(in srgb,var(--page) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+  .mbrand,.mrole{display:none}
+  .search{position:relative;flex:1 1 auto;max-width:560px}
+  .search > svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted);
+    fill:none;stroke-width:1.7;stroke-linecap:round;pointer-events:none}
+  .search input{width:100%;font:inherit;font-size:14px;padding:9px 34px 9px 36px;border:1px solid var(--rule);border-radius:10px;
+    background:var(--card);color:var(--ink)}
+  .search input::placeholder{color:var(--muted)}
+  .kbd{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;color:var(--muted);
+    border:1px solid var(--rule);border-radius:5px;padding:0 6px;line-height:18px;pointer-events:none}
+  .qres{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--card);border:1px solid var(--rule);border-radius:12px;
+    box-shadow:0 12px 32px rgba(20,16,10,.16);padding:6px;z-index:30}
+  .qres button{display:block;width:100%;padding:9px 10px;border-radius:8px}
+  .qres button:hover,.qres button.on{background:var(--panel)}
+  .qres b{display:block;font-weight:500}
+  .qres span{font-size:12px;color:var(--muted)}
+  main{padding:26px clamp(16px,3vw,36px) 60px;min-width:0}
+  .tabbar{display:none}
+  .linkbtn{color:var(--accent);text-decoration:underline;text-underline-offset:2px;font-size:inherit}
+  select{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:6px 10px}
+
+  /* today */
+  .today{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;margin-top:22px;align-items:start}
+  @media (max-width:1100px){.today{grid-template-columns:minmax(0,1fr)}}
+  .tgrp{margin-top:6px}
+  .tgrp + .tgrp{margin-top:20px}
+  .tgrp > .eyebrow{margin-bottom:2px}
+  .todo{border-top:1px solid var(--rule);padding:13px 0}
+  .tgrp > .eyebrow + .todo{border-top:0}
+  .todo .row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:12px;align-items:start}
+  .todo .row > svg{width:16px;height:16px;margin-top:3px}
+  .todo .addr{font-weight:600;font-size:14.5px}
+  .todo .who2{color:var(--muted);font-weight:400}
+  .todo .what{font-size:13.5px;margin-top:2px}
+  .todo .ctx{font-size:12.5px;color:var(--ink2);margin-top:3px}
+  .todo.done .addr,.todo.done .what{color:var(--muted)}
+  .draftbox{margin:12px 0 0 30px;border:1px solid var(--rule);border-radius:10px;background:var(--panel);padding:12px 14px}
+  .draftbox .eyebrow{margin-bottom:8px}
+  .draft{font-size:13.5px;line-height:1.6;white-space:pre-wrap;border-radius:8px}
+  .draft[contenteditable="true"]{background:var(--card);border:1px solid var(--accent);padding:8px 10px;outline:none}
+  @media (max-width:640px){.todo .row{grid-template-columns:18px minmax(0,1fr)}.todo .row .acts{grid-column:2;justify-content:flex-start}.draftbox{margin-left:0}}
+  .nrow{display:grid;grid-template-columns:42px 18px minmax(0,1fr);gap:10px;width:100%;padding:10px 8px;border-radius:10px;align-items:start}
+  .nrow:hover{background:var(--panel)}
+  .nrow .nt{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:2px}
+  .nrow b{font-weight:500;font-size:13.5px}
+  .nrow.unread b{font-weight:600}
+  .nrow.unread b::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:1px}
+  .nrow .nd{display:block;font-size:12.5px;color:var(--ink2);margin-top:1px}
+  .nrow .nc{display:block;margin-top:5px}
+
+  /* matters */
+  .filterrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:20px}
+  .mlist{margin-top:14px;padding:6px 6px 8px}
+  .mhead,.mrow{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(0,1fr) minmax(0,1.3fr) minmax(130px,auto);gap:16px;align-items:center}
+  .mhead{padding:10px 12px 9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+  .mrow{width:100%;padding:12px;border-bottom:1px solid var(--rule);border-radius:0}
+  .mrow:last-child{border-bottom:0}
+  .mrow:hover{background:var(--panel);border-radius:8px}
+  .mrow .addr{font-weight:500;display:block}
+  .mrow .small{display:block;margin-top:1px}
+  .stagebar{display:flex;gap:3px;margin-top:6px}
+  .stagebar i{width:16px;height:4px;border-radius:2px;background:var(--rule);display:block}
+  .stagebar i.on{background:var(--ink2)}
+  @media (max-width:760px){
+    .mhead{display:none}
+    .mrow{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+    .mrow .mprop{grid-column:1 / -1}
+    .mrow .mstage{grid-column:1}
+    .mrow .mnext{grid-column:1;font-size:13px;color:var(--ink2)}
+    .mrow .mflag{grid-column:2;grid-row:2}
+  }
+
+  /* promises */
+  .prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:12px 0;border-top:1px solid var(--rule);align-items:start}
+  .card > .h2row + .prow{border-top:0}
+  .prow b{font-weight:500}
+  .prow.done b{color:var(--muted);text-decoration:line-through}
+
+  /* matter page */
+  .back{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 12px 6px 6px;margin-left:-6px;border-radius:999px;
+    font-size:13.5px;font-weight:500}
+  .back span{font-size:16px;line-height:1;color:var(--accent)}
+  .back:hover{background:var(--panel)}
+  .mpage{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;margin-top:20px;align-items:start}
+  @media (max-width:1000px){.mpage{grid-template-columns:minmax(0,1fr)}}
+  .rail{display:grid;gap:16px}
+  .alertcard p{margin:6px 0 0;font-size:13.5px;color:var(--ink2)}
+  .mono-line{font-family:var(--mono);font-size:12px;overflow-wrap:anywhere;padding:3px 0}
+
+  /* phone */
+  @media (max-width:900px){
+    .shell{grid-template-columns:minmax(0,1fr)}
+    aside.nav{display:none}
+    .topbar{flex-wrap:wrap;padding:10px 16px}
+    .mbrand{display:block;font-family:var(--serif);font-size:24px;line-height:1;margin-right:auto}
+    .mrole{display:block;max-width:58%;font-size:12.5px}
+    .search{flex:1 1 100%;max-width:none;order:3}
+    .kbd{display:none}
+    main{padding:18px 16px calc(84px + env(safe-area-inset-bottom,0px))}
+    .tabbar{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;position:fixed;left:0;right:0;bottom:0;z-index:25;
+      background:var(--card);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px)}
+    .tabbar .navlink{flex-direction:column;justify-content:center;gap:3px;padding:10px 4px 12px;font-size:12.5px;border-radius:0;text-align:center}
+    .tabbar .navlink[aria-current="page"]{box-shadow:inset 0 3px 0 var(--accent);background:transparent}
+    .tabbar .badge{min-width:18px;height:18px;font-size:10.5px}
+  }
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="demobar">Demo firm · example data, not real client files</div>
+
+<div class="shell">
+  <aside class="nav" aria-label="Main">
+    <div class="brand">Lou</div>
+    <div class="firm">Calder &amp; Lowe</div>
+    <nav id="navList" aria-label="Sections"></nav>
+    <div class="viewas">
+      <label for="roleSel" class="eyebrow">Demo · switch person</label>
+      <select id="roleSel"><option value="fee">Daniel Hughes · fee earner</option><option value="colp">Helen Barker · compliance officer &amp; partner</option><option value="pm">James Whitaker · practice manager</option></select>
+      <p class="small" id="whoLine"></p>
+    </div>
+  </aside>
+  <div class="mainwrap">
+    <header class="topbar">
+      <span class="mbrand">Lou</span>
+      <div class="search" id="searchBox" role="search">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.8"/><path d="m13 13 4.5 4.5"/></svg>
+        <input id="q" type="search" placeholder="Find a matter by address, client or reference" autocomplete="off" aria-label="Find a matter">
+        <span class="kbd" aria-hidden="true">/</span>
+        <div class="qres" id="qres" hidden></div>
+      </div>
+      <select id="roleSelM" class="mrole" aria-label="Demo: switch person"><option value="fee">Daniel Hughes · fee earner</option><option value="colp">Helen Barker · compliance officer &amp; partner</option><option value="pm">James Whitaker · practice manager</option></select>
+    </header>
+    <main id="main"></main>
+  </div>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<div id="tip" hidden></div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); };
+  var fmt = function(n){ return n >= 10000 ? (n/1000).toFixed(1).replace(/\.0$/,"") + "K" : n.toLocaleString("en-GB"); };
+  var CLIENT_APP = "/demo/client-app/";
+
+  /* ---------------- status icons: always paired with a text label ---------------- */
+  function icon(kind){
+    var c = { good:"var(--good)", warn:"var(--warn)", serious:"var(--serious)", crit:"var(--crit)" }[kind];
+    if (kind === "good") return '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="'+c+'"/><path d="M4.8 8.3 7 10.4l4.2-4.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (kind === "warn") return '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6 15 14H1z" fill="'+c+'"/><path d="M8 6v3.6" stroke="#1A1A18" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.8" r=".95" fill="#1A1A18"/></svg>';
+    if (kind === "serious" || kind === "crit") return '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="'+c+'"/><path d="M8 4.3v4.4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.3" r="1" fill="#fff"/></svg>';
+    return '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="var(--muted)" stroke-width="1.3"/><path d="M8 7.2v4" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="5" r=".9" fill="var(--muted)"/></svg>';
+  }
+  function chip(kind, label){ return '<span class="st' + (kind === "info" ? " muted" : "") + '">' + icon(kind) + esc(label) + '</span>'; }
+
+  /* ---------------- the firm ---------------- */
+  var NOW_LABEL = "Thursday 4 September 2026 · 14:10";
+  var FEE = [
+    { id:"da", name:"Daniel Hughes", short:"Daniel", matters:16, base:{ cov:.25, rep:15 }, off:.02,  conv:34, notes:3, overdue:1, last:"Today, 13:52" },
+    { id:"sl", name:"Sophie Lane",      short:"Sophie", matters:17, base:{ cov:.24, rep:16 }, off:.01,  conv:36, notes:1, overdue:2, last:"Today, 11:30" },
+    { id:"tr", name:"Tom Reyes",        short:"Tom",    matters:14, base:{ cov:.18, rep:14 }, off:-.045,conv:29, notes:2, overdue:3, last:"Yesterday, 17:05" },
+    { id:"ak", name:"Aisha Khan",       short:"Aisha",  matters:13, base:{ cov:.21, rep:13 }, off:-.01, conv:27, notes:0, overdue:1, last:"Today, 09:10" }
+  ];
+  var STAGES = ["Instruction","Searches","Enquiries","Exchange","Completion"];
+
+  var MATTERS = [
+    ["MTR-1001","14 Meadow Road, Sale M33 2QX","Sarah Whitfield","Purchase",2,"Reply due 11 Sep",3,"risk","Exchange blocked until the drainage query is answered"],
+    ["MTR-1055","4 Primrose Bank, Timperley WA15","Ben & Chloe Ward","Sale & purchase",2,"Chain update due 9 Sep",2,"risk","Onward purchase at risk — raised from today's call"],
+    ["MTR-1012","Flat 6, 22 Brooklands Road, Sale M33","Oliver Grant","Purchase · leasehold",2,"Management pack due 9 Sep",2,"overdue","You owe: leasehold enquiries to the buyer"],
+    ["MTR-1034","12 Beech Avenue, Chorlton M21","Emma Clarke","Sale",2,"Replies sent 2 Sep",2,"overdue","Client owes: TA10 fittings form"],
+    ["MTR-1019","8 Rosemary Close, Hale WA15","Laura Byrne","Purchase",3,"Exchange 5 Sep",1,"",""],
+    ["MTR-1043","30 Church Road, Urmston M41","Mark & Lisa Doyle","Sale",3,"Exchange 11 Sep",1,"",""],
+    ["MTR-1007","3 Ashfield Grove, Altrincham WA14","Mr & Mrs Patel","Sale",3,"Exchange target 12 Sep",1,"",""],
+    ["MTR-1015","41 Park Road, Timperley WA15","The Chen family","Sale & purchase",1,"Searches due 10 Sep",1,"",""],
+    ["MTR-1041","5 Hawthorn Drive, Altrincham WA14","Fatima Begum","Purchase",2,"Survey back 8 Sep",1,"",""],
+    ["MTR-1031","59 Moss Lane, Urmston M41","Dev Sharma","Purchase",1,"Searches due 15 Sep",1,"",""],
+    ["MTR-1049","64 Woodlands Road, Altrincham WA14","George Holt","Purchase",1,"Mortgage offer awaited",1,"",""],
+    ["MTR-1022","117 Barton Road, Stretford M32","Kwame Mensah","Purchase",0,"ID check outstanding",1,"",""],
+    ["MTR-1026","2 Orchard Mews, Didsbury M20","Hannah & Joe Price","Sale",4,"Completion 19 Sep",0,"",""],
+    ["MTR-1052","18 Elm Road, Sale M33","Amira Haddad","Purchase",4,"Completion 26 Sep",0,"",""],
+    ["MTR-1038","77 Cross Street, Sale M33","Ryan O'Neill","Remortgage",1,"Lender requirements",0,"",""],
+    ["MTR-1046","Flat 2, 9 Northenden Road, Sale M33","Isla Martin","Sale · leasehold",0,"Leasehold pack ordered",0,"",""]
+  ].map(function(r){ return { ref:r[0], addr:r[1], client:r[2], type:r[3], stage:r[4], next:r[5], prom:r[6], flag:r[7], why:r[8], fe:"da" }; });
+  MATTERS.push({ ref:"MTR-0988", addr:"7 Cedar Court, Hale WA15", client:"Nadia & Paul Ross", type:"Purchase", stage:4,
+    next:"Completed 14 Aug", prom:0, flag:"hold", why:"Complaint received 28 Aug", fe:"sl" });
+  MATTERS.push({ ref:"MTR-0973", addr:"21 Sycamore Way, Sale M33", client:"Owen Bright", type:"Sale", stage:2,
+    next:"Replies due 12 Sep", prom:1, flag:"", why:"", fe:"tr" });
+  var byRef = {}; MATTERS.forEach(function(m){ byRef[m.ref] = m; });
+
+  /* ---------------- fee earner state ---------------- */
+  var QUEUE = [
+    { id:"q1", kind:"note", ref:"MTR-1001", title:"Attendance note — searches back, drainage query raised",
+      body:"Drafted from the 09:24 call with Sarah Whitfield. Approve it and it becomes a file note with the recording behind it.", done:false },
+    { id:"q2", kind:"summary", ref:"MTR-1012", title:"Summary for Oliver Grant — management pack chased",
+      body:"Written for the client in plain English from the 10:05 call. He won't see it until you approve it.", done:false },
+    { id:"q3", kind:"note", ref:"MTR-1007", title:"Attendance note — call with the buyer's agent",
+      body:"From the 10:41 call with Becky Long, Holt & Marsh. Firm only; the client won't see this one.", done:false },
+    { id:"q4", kind:"overdue", ref:"MTR-1012", title:"You promised to send the leasehold enquiries to the buyer",
+      body:"Agreed on the call of 1 Sep, due 3 Sep. One day overdue. The recording is on the file.", done:false },
+    { id:"q5", kind:"risk", ref:"MTR-1001", title:"Exchange blocked until the drainage query is answered",
+      body:"Raised automatically from this morning's call. Seller's solicitors reply due 11 Sep.", done:false },
+    { id:"q6", kind:"risk", ref:"MTR-1055", title:"Onward purchase at risk",
+      body:"Ben Ward said on today's call that their buyer may withdraw. Worth calling the agent before the chain update.", done:false },
+    { id:"q7", kind:"mono", ref:"MTR-1055", title:"Today's 13:20 call came back mono",
+      body:"Both voices are on one channel, so who said what is inferred, not certain. Consent and transcript are intact.", done:false }
+  ];
+  var PROMISES = {
+    you: [
+      ["Raise the drainage query formally with the seller's solicitors","MTR-1001 · agreed today 09:24","Due today",""],
+      ["Send the leasehold enquiries to the buyer","MTR-1012 · agreed 1 Sep","1 day overdue","late"],
+      ["Confirm the completion statement to Laura Byrne","MTR-1019 · agreed 2 Sep","Due 5 Sep",""],
+      ["Call the Chen family with the search results","MTR-1015 · agreed 29 Aug","Due 10 Sep",""]
+    ],
+    toYou: [
+      ["Seller's solicitors — build-over agreement","MTR-1001","Due 11 Sep",""],
+      ["Managing agent — leasehold management pack","MTR-1012","Due 9 Sep",""],
+      ["Halifax — mortgage offer","MTR-1049","Awaited",""]
+    ],
+    clients: [
+      ["Sarah Whitfield — signed client care pack","MTR-1001 · agreed 28 Aug","7 days",""],
+      ["Emma Clarke — TA10 fittings and contents form","MTR-1034 · agreed 31 Aug","4 days",""],
+      ["Kwame Mensah — proof of identity","MTR-1022 · agreed 2 Sep","2 days",""]
+    ]
+  };
+  var CALLS = [
+    ["09:24","In","MTR-1001","Sarah Whitfield","client","2:48","0:16",2,"note"],
+    ["10:05","In","MTR-1012","Oliver Grant","client","6:12","0:11",2,"summary"],
+    ["10:41","In","MTR-1007","Becky Long, Holt & Marsh","agent","3:30","0:14",2,"note"],
+    ["11:58","In","MTR-1034","Emma Clarke","client","0:09","",0,"short"],
+    ["13:20","In","MTR-1055","Ben Ward","client","8:04","0:12",1,"mono"]
+  ];
+  /* everything that reached Daniel's matters today: calls, email, documents */
+  var TODAY = [
+    { id:"t11", t:"13:47", kind:"email", dir:"in", ref:"MTR-1034", who:"Emma Clarke", title:"TA10 attached", meta:"1 attachment · also in your Outlook", status:["good","Matches a promise: Emma owes the TA10"], unread:true },
+    { id:"t10", t:"13:20", kind:"call", dir:"in", ref:"MTR-1055", who:"Ben Ward", title:"Call with Ben Ward", meta:"8 min 04 · consent at 0:12", status:["warn","Filed · not diarised"] },
+    { id:"t09", t:"12:35", kind:"doc", dir:"in", ref:"MTR-1041", who:"Pennine Survey", title:"Homebuyer report.pdf", meta:"By email from the surveyor · also in your Outlook", status:["info","Explanation to approve"], unread:true },
+    { id:"t08", t:"11:58", kind:"call", dir:"in", ref:"MTR-1034", who:"Emma Clarke", title:"Call from Emma Clarke", meta:"9 seconds", status:["info","Not filed · too short"] },
+    { id:"t07", t:"11:20", kind:"email", dir:"in", ref:"MTR-1055", who:"Ben Ward", title:"Our buyer might pull out", meta:"Also in your Outlook", status:null },
+    { id:"t06", t:"10:41", kind:"call", dir:"in", ref:"MTR-1007", who:"Becky Long, Holt & Marsh", title:"Call from the buyer's agent", meta:"3 min 30 · consent at 0:14", status:["info","Note to approve"] },
+    { id:"t05", t:"10:12", kind:"email", dir:"out", ref:"MTR-1001", who:"The seller's solicitors", title:"Drainage query: build-over agreement", meta:"Sent from your Outlook · captured and passed on", status:null },
+    { id:"t04", t:"10:05", kind:"call", dir:"in", ref:"MTR-1012", who:"Oliver Grant", title:"Call with Oliver Grant", meta:"6 min 12 · consent at 0:11", status:["info","Summary to approve"] },
+    { id:"t03", t:"09:24", kind:"call", dir:"in", ref:"MTR-1001", who:"Sarah Whitfield", title:"Call from Sarah Whitfield", meta:"2 min 48 · consent at 0:16", status:["info","Note to approve"] },
+    { id:"t02", t:"08:47", kind:"doc", dir:"in", ref:"MTR-1049", who:"Halifax", title:"Mortgage offer.pdf", meta:"By email from the lender · also in your Outlook", status:null, unread:true },
+    { id:"t01", t:"08:12", kind:"email", dir:"in", ref:"MTR-1019", who:"Laura Byrne", title:"Completion statement: quick question", meta:"Also in your Outlook", status:null, unread:true }
+  ];
+  var TODAY_KIND = "all";
+  function glyph(kind){
+    var p = kind === "call" ? '<path d="M5.5 2.5h2l1 3-1.5 1a8 8 0 0 0 4 4l1-1.5 3 1v2a1.5 1.5 0 0 1-1.5 1.5A11.5 11.5 0 0 1 2.5 4 1.5 1.5 0 0 1 4 2.5z"/>'
+          : kind === "email" ? '<rect x="2" y="3.5" width="14" height="11" rx="1.5"/><path d="m2.5 4.5 6.5 5.2 6.5-5.2"/>'
+          : '<path d="M4.5 1.8h6l3.5 3.5v10.9h-9.5z"/><path d="M10.5 1.8v3.5h3.5"/><path d="M7 9.5h5M7 12.3h3.5"/>';
+    return '<svg viewBox="0 0 18 18" aria-hidden="true" style="width:16px;height:16px;fill:none;stroke:var(--ink2);stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round">' + p + '</svg>';
+  }
+  /* ---------------- supervision data: 20 weeks since go-live, seeded ---------------- */
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var R = rng(1001);
+  var WEEKS = 20;
+  var weekStart = function(i){ var d = new Date(Date.UTC(2026,7,24)); d.setUTCDate(d.getUTCDate() - (WEEKS-1-i)*7); return d; };
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var dLabel = function(d){ return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]; };
+  var W = [];
+  for (var i = 0; i < WEEKS; i++){
+    var p = i / (WEEKS-1);
+    var row = { start:weekStart(i), by:{} };
+    FEE.forEach(function(f){
+      var conv = Math.round(f.conv * (0.9 + R()*0.22));
+      var cov = Math.min(0.975, 0.70 + 0.225*Math.sqrt(p) + f.off + (R()-0.5)*0.03);
+      var rec = Math.round(conv*cov);
+      row.by[f.id] = {
+        conv:conv, rec:rec,
+        emails:Math.round((f.conv*2.3) * (0.88 + R()*0.24)),
+        docs:Math.round((f.conv*0.7) * (0.8 + R()*0.4)),
+        rep:Math.max(4, Math.round(f.base.rep * (1 - 0.47*Math.sqrt(p)) + (R()-0.5)*2.2)),
+        handle:+(7.1 - 1.7*Math.sqrt(p) + (R()-0.5)*0.35).toFixed(2),
+        tts:+(6.4 - 2.4*p + (R()-0.5)*0.6).toFixed(2),
+        edited: Math.round(rec * (0.075 - 0.05*p + (R()-0.5)*0.01))
+      };
+    });
+    W.push(row);
+  }
+  var BASE = { cov:0.22, rep:58, handle:7.1, ttsDays:2.3 };
+
+  /* ---------------- tooltip ---------------- */
+  var tip = $("tip");
+  function showTip(x, y, title, rows){
+    tip.textContent = "";
+    var t = document.createElement("div"); t.className = "t"; t.textContent = title; tip.appendChild(t);
+    rows.forEach(function(r){
+      var d = document.createElement("div"); d.className = "row";
+      var k = document.createElement("i"); k.style.background = r.color || "var(--muted)";
+      var b = document.createElement("b"); b.textContent = r.value;
+      var s = document.createElement("span"); s.textContent = r.label;
+      d.appendChild(k); d.appendChild(b); d.appendChild(s); tip.appendChild(d);
+    });
+    tip.hidden = false;
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(window.innerWidth - w - 10, x + 14), top = y - h - 12;
+    if (top < 8) top = y + 16;
+    tip.style.left = Math.max(8, left) + "px"; tip.style.top = top + "px";
+  }
+  function hideTip(){ tip.hidden = true; }
+  function tipFromEl(el, title, rows){
+    var r = el.getBoundingClientRect(); showTip(r.left + r.width/2, r.top, title, rows);
+  }
+
+  /* ---------------- state ---------------- */
+  var S = { role:"fee", page:"today", from:"today", matter:null, range:12, fe:"all", holds:["MTR-0988"], retention:"15", retentionPending:null, bundles:{},
+    open:{}, editing:{}, edits:{}, played:{}, newFilter:"unread", mFilter:"all", mSort:"urgent", prom:{}, holdConfirm:null, holdAsked:{} };
+
+  /* ============================================================
+     FEE EARNER: Today, Matters, Promises
+     ============================================================ */
+  function shortAddr(m){ var p = m.addr.split(", "); return /^Flat/.test(p[0]) ? p[0] + ", " + p[1] : p[0]; }
+  function firstName(n){ return n.replace(/^(Mr & Mrs|The)\s+/, "").split(/[\s&]/)[0]; }
+  var DRAFTS = {
+    q1:{ label:"Draft attendance note · written from the recording",
+      text:"Call with Sarah Whitfield, Thu 4 Sep 2026, 09:24, 2 min 48. Consent given at 0:16.\n\nAdvised that the local authority and environmental searches are clear. The drainage and water search shows a public sewer within three metres of the 2019 rear extension, and the seller's TA6 does not mention a build-over agreement. Explained this is usually resolved with indemnity insurance at the seller's cost.\n\nAgreed: DH to raise with the seller's solicitors today. Client not to book removals or confirm dates until it is resolved.\n\nTime: 0.1 hours." },
+    q2:{ label:"Plain-English summary · Oliver will see this once you approve it",
+      text:"On your call, Daniel explained that the managing agent hasn't sent the leasehold management pack yet. He has chased them and expects it by 9 September.\n\nWhen it arrives, he'll check the service charge and any planned works, and send you the questions he's raised. There's nothing for you to do yet." },
+    q3:{ label:"Draft attendance note · firm only, the client won't see it",
+      text:"Call from Becky Long, Holt & Marsh (buyer's agent), Thu 4 Sep 2026, 10:41, 3 min 30. Consent given at 0:14.\n\nAgent asked for an exchange date. Advised a target of 12 Sep, subject to the buyer's mortgage offer, which their solicitors expect this week. No information given about our clients' finances.\n\nTime: 0.1 hours." }
+  };
+  var TODO_COPY = {
+    q1:{ what:"Attendance note from the 09:24 call", btn:"Read and approve" },
+    q2:{ what:"Summary for the client from the 10:05 call", btn:"Read and approve for Oliver" },
+    q3:{ what:"Attendance note from the 10:41 call with the buyer's agent", btn:"Read and approve" },
+    q4:{ what:"You promised to send the leasehold enquiries to the buyer", ctx:"1 day overdue · agreed on the call of 1 Sep" },
+    q5:{ what:"Exchange blocked until the drainage query is answered", ctx:"The seller's solicitors are due to reply by 11 Sep" },
+    q6:{ what:"Onward purchase at risk", ctx:"Ben said on today's call that their buyer may withdraw. Worth calling the agent before the chain update." },
+    q7:{ what:"Today's 13:20 call came back mono", ctx:"Who said what is inferred, not certain. Consent and transcript are intact." }
+  };
+  function approvals(){ return QUEUE.filter(function(q){ return q.kind === "note" || q.kind === "summary"; }); }
+  function openTodo(){ return QUEUE.filter(function(q){ return !q.done && (q.kind === "note" || q.kind === "summary" || q.kind === "overdue"); }); }
+  function overdueCount(){ return PROMISES.you.filter(function(p){ return p[3] === "late"; }).length; }
+
+  function todayPage(){
+    var nA = approvals().filter(function(q){ return !q.done; }).length;
+    var nO = QUEUE.filter(function(q){ return q.kind === "overdue" && !q.done; }).length;
+    var nW = QUEUE.filter(function(q){ return q.kind === "risk" || q.kind === "mono"; }).length;
+    var parts = [];
+    if (nA) parts.push(nA + " to approve"); if (nO) parts.push(nO + " overdue promise"); parts.push(nW + " things to keep an eye on");
+    var h = '<span class="eyebrow">' + NOW_LABEL + '</span><h1>Good afternoon, Daniel.</h1>' +
+      '<p class="sub">' + (nA || nO ? parts.join(", ") + "." : "You're up to date. " + nW + " things to keep an eye on.") + '</p>';
+    h += '<div class="today">';
+    h += '<section class="card"><div class="h2row"><h2>To do</h2><span class="note">' + (nA + nO ? (nA + nO) + " left" : "All done") + '</span></div>' +
+      todoGroup("Approve before anyone relies on it", approvals()) +
+      todoGroup("Overdue", QUEUE.filter(function(q){ return q.kind === "overdue"; })) +
+      todoGroup("Keep an eye on", QUEUE.filter(function(q){ return q.kind === "risk" || q.kind === "mono"; })) + '</section>';
+    h += newToday();
+    h += '</div>';
+    return h;
+  }
+  function todoGroup(title, list){
+    if (!list.length) return "";
+    return '<div class="tgrp"><span class="eyebrow">' + title + '</span>' + list.map(todoItem).join("") + '</div>';
+  }
+  function todoItem(q){
+    var m = byRef[q.ref], c = TODO_COPY[q.id];
+    var ic = { note:"info", summary:"info", overdue:"warn", risk:"serious", mono:"warn" }[q.kind];
+    var acts = "";
+    if (q.done) acts = '<span class="okmsg">' + icon("good") + esc(q.doneMsg) + '</span>';
+    else if (q.kind === "note" || q.kind === "summary"){ if (!S.open[q.id]) acts = '<button class="btn pri" data-expand="' + q.id + '">' + c.btn + '</button>'; }
+    else if (q.kind === "overdue") acts = '<button class="btn" data-open-m="' + q.ref + '">Open matter</button><button class="btn pri" data-approve="' + q.id + '">Mark done</button>';
+    else acts = '<button class="btn" data-open-m="' + q.ref + '">Open matter</button>';
+    var h = '<div class="todo' + (q.done ? " done" : "") + '"><div class="row">' + icon(ic) +
+      '<div><div class="addr">' + esc(shortAddr(m)) + ' <span class="who2">· ' + esc(m.client) + '</span></div>' +
+      '<div class="what">' + esc(c.what) + '</div>' + (c.ctx ? '<div class="ctx">' + esc(c.ctx) + '</div>' : '') + '</div>' +
+      '<div class="acts">' + acts + '</div></div>';
+    if (!q.done && S.open[q.id] && DRAFTS[q.id]){
+      var d = DRAFTS[q.id], editing = !!S.editing[q.id], txt = S.edits[q.id] != null ? S.edits[q.id] : d.text;
+      h += '<div class="draftbox"><span class="eyebrow">' + esc(d.label) + '</span>' +
+        '<div class="draft" id="draft-' + q.id + '"' + (editing ? ' contenteditable="true" role="textbox" aria-multiline="true" aria-label="Edit the draft"' : '') + '>' + esc(txt) + '</div>' +
+        '<div class="acts" style="justify-content:flex-start;margin-top:12px">' +
+        '<button class="btn pri" data-approve="' + q.id + '">' + (q.kind === "summary" ? "Approve for Oliver" : "Approve") + '</button>' +
+        (editing ? '' : '<button class="btn" data-edit="' + q.id + '">Edit</button>') +
+        '<button class="btn" data-play="' + q.id + '">Play the recording</button>' +
+        '<button class="btn" data-open-m="' + q.ref + '">Open matter</button>' +
+        '<button class="btn" data-collapse="' + q.id + '">Not now</button></div>' +
+        (S.played[q.id] ? '<p class="small" style="margin:10px 0 0">The recording plays from the start of the call. In this demo there\'s no audio.</p>' : '') + '</div>';
+    }
+    return h + '</div>';
+  }
+  function newDesc(i){
+    if (i.kind === "call") return (i.dir === "in" ? "Call from " : "Call to ") + i.who + " · " + i.meta.split(" · ")[0];
+    if (i.kind === "email") return (i.dir === "in" ? "Email from " : "Email to ") + i.who + " · " + i.title;
+    return "Document from " + i.who + " · " + i.title;
+  }
+  function newToday(){
+    var unread = TODAY.filter(function(i){ return i.unread; });
+    var list = S.newFilter === "unread" ? unread : TODAY;
+    return '<section class="card"><div class="h2row"><h2>New today</h2>' +
+      '<div class="seg" role="group" aria-label="Show"><button data-newf="unread" aria-pressed="' + (S.newFilter === "unread") + '">Unread · ' + unread.length + '</button>' +
+      '<button data-newf="all" aria-pressed="' + (S.newFilter === "all") + '">Everything · ' + TODAY.length + '</button></div></div>' +
+      (list.length ? list.map(function(i){ var m = byRef[i.ref];
+        return '<button class="nrow' + (i.unread ? " unread" : "") + '" data-today="' + i.id + '" data-ref="' + i.ref + '">' +
+          '<span class="nt num">' + i.t + '</span><span>' + glyph(i.kind) + '</span>' +
+          '<span><b>' + esc(shortAddr(m)) + '</b><span class="nd">' + esc(newDesc(i)) + '</span>' +
+          (i.status && i.status[0] === "good" ? '<span class="nc">' + chip(i.status[0], i.status[1]) + '</span>' : '') + '</span></button>';
+      }).join("") : '<p class="small" style="margin:6px 0 0">Nothing unread. <button class="linkbtn" data-newf="all">See everything from today</button></p>') +
+      '</section>';
+  }
+
+  /* ---------------- Matters ---------------- */
+  var MFILTERS = [["all","All"],["attention","Needs you"],["exchange","Exchanging"],["completion","Completing"],["early","Early stages"]];
+  function myMatters(){ return MATTERS.filter(function(m){ return m.fe === "da"; }); }
+  function matchesFilter(m, f){
+    if (f === "attention") return m.flag === "risk" || m.flag === "overdue";
+    if (f === "exchange") return m.stage === 3;
+    if (f === "completion") return m.stage === 4;
+    if (f === "early") return m.stage <= 1;
+    return true;
+  }
+  function mattersPage(){
+    var all = myMatters();
+    var list = all.filter(function(m){ return matchesFilter(m, S.mFilter); });
+    var rank = function(m){ return m.flag === "risk" ? 0 : m.flag === "overdue" ? 1 : 2; };
+    list.sort(function(a, b){
+      if (S.mSort === "address") return shortAddr(a).localeCompare(shortAddr(b));
+      if (S.mSort === "stage") return b.stage - a.stage;
+      return rank(a) - rank(b) || b.stage - a.stage;
+    });
+    var h = '<span class="eyebrow">' + NOW_LABEL + '</span><h1>Your matters</h1><p class="sub">' + all.length + ' active. Find any matter quickly with the search bar at the top.</p>';
+    h += '<div class="filterrow"><div class="seg" role="group" aria-label="Filter">' + MFILTERS.map(function(f){
+        var n = all.filter(function(m){ return matchesFilter(m, f[0]); }).length;
+        return '<button data-mf="' + f[0] + '" aria-pressed="' + (S.mFilter === f[0]) + '">' + f[1] + ' · ' + n + '</button>'; }).join("") + '</div>' +
+      '<label class="small" for="mSort" style="margin-left:auto">Sort</label><select id="mSort">' +
+      [["urgent","Needs you first"],["stage","Furthest along"],["address","Address"]].map(function(o){
+        return '<option value="' + o[0] + '"' + (S.mSort === o[0] ? " selected" : "") + '>' + o[1] + '</option>'; }).join("") + '</select></div>';
+    h += '<div class="card mlist"><div class="mhead"><span>Property</span><span>Stage</span><span>Next</span><span>Needs</span></div>' +
+      list.map(function(m){
+        var flag = m.flag === "risk" ? chip("serious", "Risk") : m.flag === "overdue" ? chip("warn", "Overdue promise") : '<span class="small">Nothing</span>';
+        return '<button class="mrow" data-open-m="' + m.ref + '"><span class="mprop"><span class="addr">' + esc(shortAddr(m)) + '</span>' +
+          '<span class="small">' + esc(m.client) + ' · ' + esc(m.type) + ' · ' + m.ref + '</span></span>' +
+          '<span class="mstage">' + STAGES[m.stage] + '<span class="stagebar" aria-hidden="true">' + [0,1,2,3,4].map(function(i){ return '<i' + (i <= m.stage ? ' class="on"' : '') + '></i>'; }).join("") + '</span></span>' +
+          '<span class="mnext">' + esc(m.next) + '</span><span class="mflag">' + flag + '</span></button>';
+      }).join("") + (list.length ? "" : '<p class="small" style="padding:14px 12px">No matters match this filter.</p>') + '</div>';
+    return h;
+  }
+
+  /* ---------------- Promises ---------------- */
+  function promisesPage(){
+    var h = '<span class="eyebrow">' + NOW_LABEL + '</span><h1>Promises</h1>' +
+      '<p class="sub">Everything promised on a recorded call or in an email, by whom, and by when.</p>';
+    h += '<div class="grid g3" style="margin-top:22px">' +
+      promGroup("You owe", "you", PROMISES.you) + promGroup("Owed to you", "toYou", PROMISES.toYou) + promGroup("Clients owe you", "clients", PROMISES.clients) + '</div>';
+    return h;
+  }
+  function refOf(p){ var r = (p[1] + " " + p[0]).match(/MTR-\d+/); return r ? r[0] : null; }
+  function lc(s){ return /^[A-Z][a-z]/.test(s) ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
+  function reminderText(group, p){
+    var m = byRef[refOf(p)], thing = p[0].split(" — ")[1] || p[0];
+    if (group === "clients"){ var who = p[0].split(" — ")[0];
+      return "Hi " + firstName(who) + ", a quick reminder that we're still waiting for your " + lc(thing) + ". You can reply to this email or upload it from your timeline in Lou.\n\nThanks,\nDaniel"; }
+    return "Further to our earlier request, please could you let us have the " + lc(thing) + " for " + shortAddr(m) + ". Our client can't move forward without it.\n\nKind regards,\nDaniel Hughes\nCalder & Lowe";
+  }
+  function promGroup(title, key, list){
+    return '<section class="card"><div class="h2row"><h2>' + title + '</h2><span class="note">' + list.length + '</span></div>' +
+      list.map(function(p, i){
+        var id = key + i, ref = refOf(p), m = ref && byRef[ref], st = S.prom[id];
+        var due = p[3] === "late" ? chip("warn", p[2]) : '<span class="small">' + esc(p[2]) + '</span>';
+        var act;
+        if (st === "done") act = '<span class="okmsg">' + icon("good") + 'Done · on the file</span>';
+        else if (st === "sent") act = '<span class="okmsg">' + icon("good") + 'Sent from the matter address · on the file</span>';
+        else if (key === "you") act = '<button class="btn" data-pdone="' + id + '">Mark done</button>';
+        else if (st === "draft") act = "";
+        else act = '<button class="btn" data-pdraft="' + id + '">Send a reminder</button>';
+        var h = '<div class="prow' + (st === "done" ? " done" : "") + '"><div><b>' + esc(p[0]) + '</b>' +
+          '<span class="small" style="display:block;margin-top:2px">' + (m ? '<button class="linkbtn" data-open-m="' + ref + '">' + esc(shortAddr(m)) + '</button> · ' : '') + esc(p[1].replace(/MTR-\d+\s*·?\s*/, "")) + '</span>' +
+          '<div style="margin-top:6px">' + due + '</div></div><div class="acts">' + act + '</div></div>';
+        if (st === "draft") h += '<div class="draftbox" style="margin:0 0 12px"><span class="eyebrow">Reminder · you send it, from the matter address</span>' +
+          '<div class="draft">' + esc(reminderText(key, p)) + '</div><div class="acts" style="justify-content:flex-start;margin-top:12px">' +
+          '<button class="btn pri" data-psend="' + id + '">Send</button><button class="btn" data-pcancel="' + id + '">Cancel</button></div></div>';
+        return h;
+      }).join("") + '</section>';
+  }
+
+  /* ============================================================
+     COLP & PARTNER
+     ============================================================ */
+  function windowWeeks(){ return W.slice(WEEKS - S.range); }
+  function agg(ids){
+    var ws = windowWeeks(), t = { conv:0, rec:0, rep:0, hsum:0, tsum:0, edited:0, n:ws.length };
+    ws.forEach(function(w){ ids.forEach(function(id){ var b = w.by[id];
+      t.conv += b.conv; t.rec += b.rec; t.rep += b.rep; t.hsum += b.handle*b.rec; t.tsum += b.tts*b.rec; t.edited += b.edited; }); });
+    t.cov = t.rec / t.conv; t.repW = t.rep / t.n; t.handle = t.hsum / t.rec; t.tts = t.tsum / t.rec; t.editRate = t.edited / t.rec;
+    return t;
+  }
+  function ids(){ return S.fe === "all" ? FEE.map(function(f){ return f.id; }) : [S.fe]; }
+  function baseFor(){
+    if (S.fe === "all") return BASE;
+    var f = FEE.filter(function(x){ return x.id === S.fe; })[0];
+    return { cov:f.base.cov, rep:f.base.rep, handle:BASE.handle, ttsDays:BASE.ttsDays };
+  }
+
+  function colpView(){
+    var h = '';
+    h += '<div class="top"><div><span class="eyebrow">' + NOW_LABEL + '</span><h1>Supervision</h1>' +
+         '<p class="sub">What the firm can prove, and where it can\'t yet.</p></div></div>';
+
+    // ---- right now: current state, not scoped by the filters below ----
+    h += '<section class="block"><div class="h2row"><h2>Right now</h2><span class="note">Live state · not affected by the date range below</span></div>' +
+         '<div class="grid g2"><div class="card" id="exceptions">' + exceptions() + '</div>' +
+         '<div class="card"><div class="h2row"><h2>Legal hold and retention</h2></div>' + holdPanel() + '</div></div></section>';
+
+    // ---- filters scope everything below ----
+    h += '<div class="filters" role="group" aria-label="Filters">' +
+         '<div class="seg" role="group" aria-label="Date range">' +
+         [[4,"Last 4 weeks"],[12,"Last 12 weeks"],[20,"Since go-live"]].map(function(r){
+           return '<button data-range="' + r[0] + '" aria-pressed="' + (S.range === r[0]) + '">' + r[1] + '</button>'; }).join("") +
+         '</div><label class="srt-l"><select id="feSel" aria-label="Fee earner"><option value="all">All fee earners</option>' +
+         FEE.map(function(f){ return '<option value="' + f.id + '"' + (S.fe === f.id ? " selected" : "") + '>' + f.name + '</option>'; }).join("") +
+         '</select></label><span class="scope" id="scope"></span></div>';
+
+    h += '<section class="block" style="margin-top:20px"><div class="h2row"><h2>The four numbers we promised to move</h2>' +
+         '<span class="note">Against the firm\'s own four-week baseline, measured before go-live</span></div>' +
+         '<div class="hero" id="hero"></div></section>';
+
+    h += '<section class="block grid g2e">' +
+         chartCard("covChart", "Conversations with a record, by fee earner", "Share of client calls with a record behind them. Target 90%.") +
+         chartCard("capChart", "Captured each week", "Every call, email and document filed to a matter.") + '</section>';
+
+    h += '<section class="block card"><div class="h2row"><h2>Fee earners</h2><span class="note">Select a row to focus the dashboard on one person</span></div>' +
+         '<div class="tbl" id="feTable"></div></section>';
+
+    h += '<section class="block grid g2e"><div class="card" id="quality"></div><div class="card" id="bundles"></div></section>';
+    return h;
+  }
+
+  function exceptions(){
+    var rows = [
+      ["good","No calls recorded without consent","Every recording followed the announcement. 0 exceptions since go-live.",""],
+      ["good","No client summaries shown without approval","Every summary a client has read was approved by a fee earner first.",""],
+      ["serious","7 promises overdue","Daniel 1 · Sophie 2 · Tom 3 · Aisha 1. Three are owed by the firm, four by clients.","fe"],
+      ["warn","2 attendance notes waiting more than 24 hours","Both on Tom Reyes's matters. The recordings are safe; the notes aren't approved yet.","tr"],
+      ["warn","2 recordings came back mono","MTR-1055 and MTR-0973. Speakers can't be separated, so neither is presented as diarised.","m:MTR-1055"],
+      ["info","2 emails didn't match a matter","Logged and not filed. Usually a mistyped matter address; the sender has been told.",""]
+    ];
+    return '<div class="h2row"><h2>Exceptions</h2><span class="note">What a supervisor should look at</span></div>' + rows.map(function(r){
+      var act = r[3] === "fe" ? '<button class="btn" data-fe="all" data-scroll="feTable">By fee earner</button>' :
+                r[3] === "tr" ? '<button class="btn" data-fe="tr" data-scroll="feTable">Show Tom</button>' :
+                r[3].indexOf("m:") === 0 ? '<button class="btn" data-open-m="' + r[3].slice(2) + '">Open</button>' : '';
+      return '<div class="q">' + icon(r[0]) + '<div><h3>' + esc(r[1]) + '</h3><p>' + esc(r[2]) + '</p></div><div class="acts">' + act + '</div></div>';
+    }).join("");
+  }
+
+  function holdPanel(){
+    var holds = S.holds.map(function(ref){ var m = byRef[ref];
+      return '<div class="hold">' + chip("info","On legal hold · retention paused") + '<h3>' + esc(m.addr) + '</h3>' +
+        '<p>' + ref + ' · ' + (ref === "MTR-0988" ? "Sophie Lane · complaint received 28 Aug · held by Helen Barker" : "held by Helen Barker just now") + '</p>' +
+        '<div style="margin-top:9px"><button class="btn" data-open-m="' + ref + '">Open</button></div></div>'; }).join("");
+    return holds + '<dl class="kv"><dt>Retention policy</dt><dd>' + S.retention + ' years after completion</dd>' +
+      '<dt>Next retention run</dt><dd>1 Oct, 02:00</dd><dt>Due for deletion</dt><dd>Nothing yet</dd>' +
+      '<dt>Last run</dt><dd>1 Sep · nothing deleted</dd></dl>' +
+      '<p class="small" style="margin:12px 0 0">Nothing is old enough to delete yet. Every run is audited, and the audit records the fact of a deletion, never its content.</p>';
+  }
+
+  function chartCard(id, title, sub){
+    return '<div class="card chartcard"><figure><div class="charthead"><div><h2>' + title + '</h2><p>' + sub + '</p></div>' +
+      '<button class="viewbtn" data-table="' + id + '" aria-pressed="false">Table</button></div>' +
+      '<div id="' + id + '"></div></figure></div>';
+  }
+
+  function renderColpScoped(){
+    var t = agg(ids()), b = baseFor();
+    var who = S.fe === "all" ? "All four fee earners" : FEE.filter(function(f){ return f.id === S.fe; })[0].name;
+    $("scope").textContent = who + " · " + (S.range === 20 ? "since go-live, 13 April" : "last " + S.range + " weeks");
+
+    // hero + three tiles
+    var cov = Math.round(t.cov*100), gap = t.conv - t.rec;
+    var hero = '<div class="card herocard"><div class="lbl" style="font-size:13px;color:var(--ink2)">Conversations with a record</div>' +
+      '<div class="big">' + cov + '%</div>' +
+      '<div class="delta">↑ ' + (cov - Math.round(b.cov*100)) + ' points on the ' + Math.round(b.cov*100) + '% baseline</div>' +
+      '<div class="meter" role="img" aria-label="' + cov + '% of client calls have a record. Target 90%."><i style="width:' + cov + '%"></i><b style="left:90%"></b></div>' +
+      '<div class="meterlbl"><span>0%</span><span>Target 90%</span><span>100%</span></div>' +
+      '<p class="gap">Of <b>' + fmt(t.conv) + '</b> client calls, <b>' + fmt(t.rec) + '</b> have a recording, transcript and summary on the file. The other ' + fmt(gap) +
+      ' were made from personal mobiles, outside a matter line.</p></div>';
+    var rep = t.repW, repD = Math.round((1 - rep / b.rep)*100);
+    var hd = t.handle, hdD = Math.round((1 - hd / b.handle)*100);
+    var tts = t.tts;
+    var kp = '<div class="kpis">' +
+      kpi("Repeat status calls", Math.round(rep) + " / week", "↓ " + repD + "% on the baseline", "Baseline " + b.rep + " a week", series("rep"), b.rep, "/ week") +
+      kpi("Average call length", hd.toFixed(1) + " min", "↓ " + hdD + "% on the baseline", "Baseline " + b.handle + " min", series("handle"), b.handle, " min") +
+      kpi("Time to a note on the file", Math.round(tts) + " min", "From " + b.ttsDays + " days to minutes", "Baseline: notes written " + b.ttsDays + " days later on average", series("tts"), null, " min") +
+      '</div>';
+    $("hero").innerHTML = hero + kp;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-spark]"), drawSpark);
+
+    drawCoverage(); drawCapture(); feTable(); quality(); bundles();
+  }
+  function series(key){
+    return windowWeeks().map(function(w){
+      var v = 0, n = 0;
+      ids().forEach(function(id){ var b = w.by[id];
+        if (key === "rep"){ v += b.rep; n = 1; } else { v += b[key]*b.rec; n += b.rec; } });
+      return { d:w.start, v: key === "rep" ? v : v/n };
+    });
+  }
+  var SPARKS = {};
+  function kpi(label, value, delta, base, data, baseline, unit){
+    var id = "sp" + Math.random().toString(36).slice(2,8);
+    SPARKS[id] = { data:data, baseline:baseline, unit:unit, label:label };
+    return '<div class="card kpi"><div class="lbl" style="font-size:13px;color:var(--ink2)">' + esc(label) + '</div>' +
+      '<div class="val">' + esc(value) + '</div><div class="delta">' + esc(delta) + '</div><div class="base">' + esc(base) + '</div>' +
+      '<svg class="spark" data-spark="' + id + '" role="img" aria-label="' + esc(label) + ' each week"></svg></div>';
+  }
+  function drawSpark(svg){
+    var cfg = SPARKS[svg.getAttribute("data-spark")]; if (!cfg) return;
+    var w = svg.clientWidth || 200, h = 40, pad = 5;
+    var vals = cfg.data.map(function(p){ return p.v; });
+    if (cfg.baseline != null) vals = vals.concat([cfg.baseline]);
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals); if (hi === lo){ hi += 1; lo -= 1; }
+    var n = cfg.data.length;
+    var X = function(i){ return n === 1 ? w/2 : pad + i*(w - pad*2)/(n-1); };
+    var Y = function(v){ return pad + (hi - v)/(hi - lo)*(h - pad*2); };
+    var path = cfg.data.map(function(p, i){ return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(p.v).toFixed(1); }).join(" ");
+    var s = '';
+    if (cfg.baseline != null) s += '<line x1="0" x2="' + w + '" y1="' + Y(cfg.baseline).toFixed(1) + '" y2="' + Y(cfg.baseline).toFixed(1) + '" stroke="var(--axis)" stroke-width="1"/>' +
+      '<text x="' + w + '" y="' + (Y(cfg.baseline) - 4).toFixed(1) + '" text-anchor="end" style="font-size:10px;fill:var(--muted)">baseline</text>';
+    s += '<path d="' + path + '" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    var last = cfg.data[n-1];
+    s += '<circle cx="' + X(n-1).toFixed(1) + '" cy="' + Y(last.v).toFixed(1) + '" r="4.5" fill="var(--s1)" stroke="var(--card)" stroke-width="2"/>';
+    s += '<line class="xh" x1="0" x2="0" y1="0" y2="' + h + '" stroke="var(--axis)" stroke-width="1" visibility="hidden"/>';
+    s += '<rect class="hit" x="0" y="0" width="' + w + '" height="' + h + '" tabindex="0" aria-label="Show weekly values"/>';
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    svg.innerHTML = s;
+    var hit = svg.querySelector(".hit"), xh = svg.querySelector(".xh");
+    function at(i){
+      var p = cfg.data[i]; xh.setAttribute("x1", X(i)); xh.setAttribute("x2", X(i)); xh.setAttribute("visibility","visible");
+      var r = svg.getBoundingClientRect();
+      showTip(r.left + X(i)*(r.width/w), r.top, "Week of " + dLabel(p.d),
+        [{ value:(cfg.unit === "/ week" ? Math.round(p.v) : p.v.toFixed(1)) + (cfg.unit === "/ week" ? "" : cfg.unit), label:cfg.label, color:"var(--s1)" }]);
+    }
+    hit.addEventListener("pointermove", function(e){
+      var r = svg.getBoundingClientRect(), x = (e.clientX - r.left) * (w / r.width);
+      var i = Math.round((x - pad) / ((w - pad*2) / Math.max(1, n-1))); at(Math.max(0, Math.min(n-1, i)));
+    });
+    hit.addEventListener("pointerleave", function(){ xh.setAttribute("visibility","hidden"); hideTip(); });
+    hit.addEventListener("focus", function(){ at(n-1); });
+    hit.addEventListener("blur", function(){ xh.setAttribute("visibility","hidden"); hideTip(); });
+  }
+
+  /* ---- chart: coverage by fee earner (horizontal bars, emphasis when one is selected) ---- */
+  var TABLE = { covChart:false, capChart:false };
+  function covData(){
+    return FEE.map(function(f){ var t = agg([f.id]); return { f:f, cov:t.cov, rec:t.rec, conv:t.conv }; });
+  }
+  function drawCoverage(){
+    var host = $("covChart"); if (!host) return;
+    var data = covData();
+    if (TABLE.covChart){
+      host.innerHTML = '<div class="tbl" style="margin-top:12px"><table><thead><tr><th>Fee earner</th><th class="r">Calls</th><th class="r">With a record</th><th class="r">Coverage</th></tr></thead><tbody>' +
+        data.map(function(d){ return '<tr><td>' + d.f.name + '</td><td class="r num">' + fmt(d.conv) + '</td><td class="r num">' + fmt(d.rec) + '</td><td class="r num">' + Math.round(d.cov*100) + '%</td></tr>'; }).join("") +
+        '</tbody></table></div>';
+      return;
+    }
+    host.innerHTML = '<div class="plot"><svg role="img" aria-label="Conversations with a record, by fee earner"></svg></div>';
+    var svg = host.querySelector("svg"), w = host.clientWidth || 480;
+    var labW = 118, rightPad = 46, rowH = 42, top = 22, barH = 18, plotW = w - labW - rightPad, h = top + rowH*data.length + 26;
+    var X = function(v){ return labW + v*plotW; };
+    var s = '';
+    [0,.25,.5,.75,1].forEach(function(t){
+      s += '<line x1="' + X(t) + '" x2="' + X(t) + '" y1="' + (top-6) + '" y2="' + (top + rowH*data.length) + '" stroke="var(--grid)" stroke-width="1"/>' +
+           '<text x="' + X(t) + '" y="' + (top + rowH*data.length + 17) + '" text-anchor="middle">' + Math.round(t*100) + '%</text>';
+    });
+    s += '<line x1="' + X(.9) + '" x2="' + X(.9) + '" y1="' + (top-10) + '" y2="' + (top + rowH*data.length) + '" stroke="var(--ink2)" stroke-width="1"/>' +
+         '<text x="' + X(.9) + '" y="' + (top-13) + '" text-anchor="middle" style="fill:var(--ink2)">Target 90%</text>';
+    data.forEach(function(d, i){
+      var y = top + i*rowH + (rowH - barH)/2, x0 = X(0), x1 = X(d.cov), r = 4;
+      var on = S.fe === "all" || S.fe === d.f.id;
+      var fill = on ? "var(--s1)" : "var(--deemph)";
+      s += '<text class="n" x="' + (labW - 12) + '" y="' + (y + barH/2 + 4) + '" text-anchor="end">' + esc(d.f.name) + '</text>';
+      s += '<path d="M' + x0 + ' ' + y + 'H' + (x1 - r) + 'Q' + x1 + ' ' + y + ' ' + x1 + ' ' + (y + r) + 'V' + (y + barH - r) +
+           'Q' + x1 + ' ' + (y + barH) + ' ' + (x1 - r) + ' ' + (y + barH) + 'H' + x0 + 'Z" fill="' + fill + '"/>';
+      s += '<text class="v" x="' + (x1 + 8) + '" y="' + (y + barH/2 + 4) + '"' + (on ? '' : ' style="fill:var(--muted)"') + '>' + Math.round(d.cov*100) + '%</text>';
+      s += '<rect class="hit" data-i="' + i + '" x="0" y="' + (top + i*rowH) + '" width="' + w + '" height="' + rowH + '" tabindex="0" aria-label="' + esc(d.f.name) + ', ' + Math.round(d.cov*100) + '% coverage"/>';
+    });
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h); svg.style.height = h + "px"; svg.innerHTML = s;
+    Array.prototype.forEach.call(svg.querySelectorAll(".hit"), function(el){
+      var d = data[+el.getAttribute("data-i")];
+      var rows = [{ value:Math.round(d.cov*100) + "%", label:"coverage", color:"var(--s1)" },
+                  { value:fmt(d.rec) + " of " + fmt(d.conv), label:"calls with a record", color:"var(--muted)" }];
+      el.addEventListener("pointermove", function(e){ showTip(e.clientX, e.clientY, d.f.name, rows); });
+      el.addEventListener("pointerleave", hideTip);
+      el.addEventListener("focus", function(){ tipFromEl(el, d.f.name, rows); });
+      el.addEventListener("blur", hideTip);
+      el.addEventListener("click", function(){ setFe(S.fe === d.f.id ? "all" : d.f.id); });
+    });
+  }
+
+  /* ---- chart: captured each week (stacked columns, 3 series) ---- */
+  var CAP = [["rec","Calls","var(--s1)"],["emails","Emails","var(--s2)"],["docs","Documents","var(--s3)"]];
+  function capData(){
+    return windowWeeks().map(function(w){
+      var o = { d:w.start, rec:0, emails:0, docs:0 };
+      ids().forEach(function(id){ var b = w.by[id]; o.rec += b.rec; o.emails += b.emails; o.docs += b.docs; });
+      o.total = o.rec + o.emails + o.docs; return o;
+    });
+  }
+  function drawCapture(){
+    var host = $("capChart"); if (!host) return;
+    var data = capData();
+    var legend = '<div class="legend">' + CAP.map(function(c){ return '<span><i style="background:' + c[2] + '"></i>' + c[1] + '</span>'; }).join("") + '</div>';
+    if (TABLE.capChart){
+      host.innerHTML = legend.replace('class="legend"','class="legend" hidden') + '<div class="tbl" style="margin-top:12px"><table><thead><tr><th>Week of</th><th class="r">Calls</th><th class="r">Emails</th><th class="r">Documents</th><th class="r">Total</th></tr></thead><tbody>' +
+        data.map(function(d){ return '<tr><td>' + dLabel(d.d) + '</td><td class="r num">' + d.rec + '</td><td class="r num">' + d.emails + '</td><td class="r num">' + d.docs + '</td><td class="r num">' + d.total + '</td></tr>'; }).join("") +
+        '</tbody></table></div>';
+      return;
+    }
+    host.innerHTML = legend + '<div class="plot"><svg role="img" aria-label="Calls, emails and documents captured each week"></svg></div>';
+    var svg = host.querySelector("svg"), w = host.clientWidth || 480;
+    var left = 38, right = 10, top = 22, ph = 190, bottom = 24, h = top + ph + bottom, pw = w - left - right;
+    var max = Math.max.apply(null, data.map(function(d){ return d.total; }));
+    var step = max > 1200 ? 500 : max > 600 ? 250 : max > 300 ? 100 : 50;
+    var ymax = Math.ceil(max / step) * step;
+    var Y = function(v){ return top + ph - v/ymax*ph; };
+    var band = pw / data.length, bw = Math.min(24, band*0.62);
+    var s = '';
+    for (var v = 0; v <= ymax; v += step){
+      s += '<line x1="' + left + '" x2="' + (w - right) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + (v === 0 ? "var(--axis)" : "var(--grid)") + '" stroke-width="1"/>' +
+           '<text x="' + (left - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end" class="num">' + fmt(v) + '</text>';
+    }
+    var every = data.length <= 4 ? 1 : data.length <= 12 ? 2 : 4;
+    data.forEach(function(d, i){
+      var cx = left + band*i + band/2, x = cx - bw/2, base = Y(0), gap = 2;
+      var segs = CAP.map(function(c){ return { v:d[c[0]], c:c }; });
+      var y = base;
+      segs.forEach(function(sg, k){
+        var hgt = sg.v/ymax*ph, yTop = y - hgt, isTop = k === segs.length - 1;
+        var y1 = yTop + (k === 0 ? 0 : 0), y2 = y - (k === 0 ? 0 : gap);
+        if (y2 - y1 < 1) { y = yTop; return; }
+        if (isTop){
+          var r = Math.min(4, (y2 - y1)/2, bw/2);
+          s += '<path class="col c' + i + '" d="M' + x + ' ' + y2 + 'V' + (y1 + r) + 'Q' + x + ' ' + y1 + ' ' + (x + r) + ' ' + y1 + 'H' + (x + bw - r) +
+               'Q' + (x + bw) + ' ' + y1 + ' ' + (x + bw) + ' ' + (y1 + r) + 'V' + y2 + 'Z" fill="' + sg.c[2] + '"/>';
+        } else {
+          s += '<rect class="col c' + i + '" x="' + x + '" y="' + y1 + '" width="' + bw + '" height="' + (y2 - y1) + '" fill="' + sg.c[2] + '"/>';
+        }
+        y = yTop;
+      });
+      if (i % every === (data.length - 1) % every)
+        s += '<text x="' + cx + '" y="' + (top + ph + 17) + '" text-anchor="middle">' + dLabel(d.d) + '</text>';
+      if (i === data.length - 1)
+        s += '<text class="v num" x="' + cx + '" y="' + (Y(d.total) - 7) + '" text-anchor="middle">' + fmt(d.total) + '</text>';
+      s += '<rect class="hit" data-i="' + i + '" x="' + (left + band*i) + '" y="' + top + '" width="' + band + '" height="' + ph + '" tabindex="0" aria-label="Week of ' + dLabel(d.d) + ', ' + d.total + ' items"/>';
+    });
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h); svg.style.height = h + "px"; svg.innerHTML = s;
+    Array.prototype.forEach.call(svg.querySelectorAll(".hit"), function(el){
+      var i = +el.getAttribute("data-i"), d = data[i];
+      var rows = CAP.map(function(c){ return { value:fmt(d[c[0]]), label:c[1], color:c[2] }; }).reverse()
+                 .concat([{ value:fmt(d.total), label:"in total" }]);
+      function lift(on){ Array.prototype.forEach.call(svg.querySelectorAll(".col"), function(p){
+        p.style.opacity = on && !p.classList.contains("c" + i) ? "0.45" : ""; }); }
+      el.addEventListener("pointermove", function(e){ lift(true); showTip(e.clientX, e.clientY, "Week of " + dLabel(d.d), rows); });
+      el.addEventListener("pointerleave", function(){ lift(false); hideTip(); });
+      el.addEventListener("focus", function(){ lift(true); tipFromEl(el, "Week of " + dLabel(d.d), rows); });
+      el.addEventListener("blur", function(){ lift(false); hideTip(); });
+    });
+  }
+
+  function feTable(){
+    var rows = FEE.map(function(f){ var t = agg([f.id]);
+      var sel = S.fe === f.id;
+      return '<tr class="click' + (sel ? " sel" : "") + '" tabindex="0" data-fe-row="' + f.id + '"><td><span class="addr">' + f.name + '</span></td>' +
+        '<td class="r num">' + f.matters + '</td><td class="r num">' + fmt(t.rec) + '</td><td class="r num">' + Math.round(t.cov*100) + '%</td>' +
+        '<td class="r num">' + Math.round(t.repW) + '</td><td class="r num">' + f.notes + '</td>' +
+        '<td>' + (f.overdue >= 3 ? chip("warn", f.overdue + " overdue") : '<span class="num">' + f.overdue + '</span>') + '</td>' +
+        '<td class="small">' + f.last + '</td></tr>'; }).join("");
+    $("feTable").innerHTML = '<table><thead><tr><th>Fee earner</th><th class="r">Active matters</th><th class="r">Calls on file</th><th class="r">Coverage</th>' +
+      '<th class="r">Repeat calls / wk</th><th class="r">Notes to approve</th><th>Promises overdue</th><th>Last approval</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function quality(){
+    var t = agg(ids()), rate = (t.editRate*100).toFixed(1);
+    var kinds = [["Names and spellings",41],["Dates",27],["What was agreed",18],["Other",14]];
+    $("quality").innerHTML = '<div class="h2row"><h2>Summary quality</h2><span class="note">Edits a fee earner made before approving</span></div>' +
+      '<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end"><div><div class="lbl" style="font-size:13px;color:var(--ink2)">Summaries edited before approval</div>' +
+      '<div class="val" style="font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:6px">' + rate + '%</div></div>' +
+      '<div><div class="lbl" style="font-size:13px;color:var(--ink2)">Shown to a client unapproved</div>' +
+      '<div class="val" style="font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:6px">0</div></div></div>' +
+      '<p class="small" style="margin:14px 0 8px">What fee earners corrected</p><div class="bars">' +
+      kinds.map(function(k){ return '<div class="barrow"><span>' + k[0] + '</span><span class="track"><i style="width:' + k[1] + '%"></i></span><b class="num">' + k[1] + '%</b></div>'; }).join("") +
+      '</div><p class="small" style="margin:14px 0 0">Every correction is kept beside the original, so the file shows what the model wrote and what the fee earner approved.</p>';
+  }
+
+  function bundles(){
+    var all = [
+      ["2 Sep","MTR-0988","7 Cedar Court, Hale","14 items","Helen Barker","For the firm's insurer",1],
+      ["22 Aug","MTR-0941","31 Oak Lane, Sale","9 items","Daniel Hughes","The client asked for a copy of their file",2],
+      ["30 Jul","MTR-0902","15 Mill Street, Altrincham","11 items","Sophie Lane","Responding to a complaint, resolved in-house",6]
+    ];
+    var list = all.filter(function(b){ return b[6] <= S.range; });
+    $("bundles").innerHTML = '<div class="h2row"><h2>Evidence bundles exported</h2><span class="note">' + list.length + ' in this period</span></div>' +
+      (list.length ? list.map(function(b){
+        return '<div class="q">' + icon("info") + '<div><div class="ref">' + b[0].toUpperCase() + ' · ' + b[1] + '</div><h3>' + esc(b[2]) + '</h3>' +
+          '<p>' + b[3] + ' · exported by ' + b[4] + ' · ' + esc(b[5]) + '</p></div><div class="acts"><button class="btn" data-open-m="' + b[1] + '">Open</button></div></div>'; }).join("")
+        : '<p class="small">None in this period.</p>') +
+      '<p class="small" style="margin:12px 0 0">A bundle is the matter\'s chronology: recordings, transcripts, approved summaries, email, documents, read receipts and the consent log, timestamped.</p>';
+  }
+
+  /* ============================================================
+     PRACTICE MANAGER
+     ============================================================ */
+  function pmView(){
+    var h = '<div class="top"><div><span class="eyebrow">' + NOW_LABEL + '</span><h1>Setup</h1>' +
+      '<p class="sub">Seats, lines, the consent wording and the rules about who sees what.</p></div></div>';
+    h += '<section class="block grid g2e">';
+    h += '<div class="card"><div class="h2row"><h2>Plan and seats</h2><span class="note">Founding Firm</span></div>' +
+      '<dl class="kv"><dt>Price per fee earner</dt><dd>£99 / month · locked for life</dd><dt>Seats in use</dt><dd>4 of 4</dd>' +
+      '<dt>Monthly total</dt><dd>£396, excluding VAT</dd><dt>Minimum term</dt><dd>None during the pilot</dd></dl>' +
+      '<div class="lines" style="margin-top:16px">' + FEE.map(function(f){ return '<div class="line"><div>' + f.name + '<span class="m">Fee earner · ' + f.matters + ' active matters</span></div><span class="small">Seat active</span></div>'; }).join("") + '</div></div>';
+    h += '<div class="card"><div class="h2row"><h2>Consent announcement</h2>' + chip("good","Approved by the compliance officer") + '</div>' +
+      '<p class="small" style="margin:0">Played before every recording on the matter line. This is the consent, so changing it needs Helen Barker\'s approval.</p>' +
+      '<div class="quote">This call will be recorded and saved to the file for <i>[the property]</i>, so there is a record of what was said. If you would rather not be recorded, please hang up and email us instead.</div>' +
+      '<p class="small" style="margin:10px 0 0">Approved by Helen Barker, compliance officer, on 2 Sep 2026.</p></div>';
+    h += '</section>';
+
+    h += '<section class="block grid g2e">';
+    h += '<div class="card"><div class="h2row"><h2>Retention policy</h2></div>' +
+      '<label for="ret" class="small">Keep matter records for</label> ' +
+      '<select id="ret" style="margin-left:6px">' + ["6","12","15"].map(function(y){ return '<option value="' + y + '"' + (S.retention === y ? " selected" : "") + '>' + y + ' years after completion</option>'; }).join("") + '</select>' +
+      '<div id="retNote">' + (S.retentionPending ? pendingNote() : '') + '</div>' +
+      '<p class="small" style="margin:12px 0 0">Records can\'t be edited inside the retention period, and a matter on legal hold is never deleted however old it is. Deletion only ever happens in the scheduled run.</p></div>';
+    h += '<div class="card"><div class="h2row"><h2>Who sees what</h2><span class="note">Defaults for every new matter</span></div><div class="lines">' +
+      [["The client","Everything said to them, approved summaries, and the documents the firm shares"],
+       ["Family helping the client","The timeline only, if the client adds them. No documents"],
+       ["Estate agent, broker, surveyor","Chain progress and their own notes. No recordings, no client advice, no documents"],
+       ["Fee earners","Their own matters, with the full transcript and recording"],
+       ["Compliance officer and partners","Every matter in the firm"],
+       ["Another firm on Lou","Nothing, including the other side of the same transaction"]].map(function(r){
+         return '<div class="line"><div>' + r[0] + '<span class="m">' + r[1] + '</span></div></div>'; }).join("") + '</div></div>';
+    h += '</section>';
+
+    h += '<section class="block grid g3">';
+    h += '<div class="card"><div class="h2row"><h2>Lines and addresses</h2></div><dl class="kv">' +
+      '<dt>Matter lines</dt><dd>60 active</dd><dt>Number range</dt><dd>0161 496 04xx</dd><dt>Matter addresses</dt><dd>@matters.meetlou.app</dd>' +
+      '<dt>Mail record</dt><dd>' + chip("good","Verified") + '</dd><dt>Sender checks</dt><dd>On every email</dd></dl></div>';
+    h += '<div class="card"><div class="h2row"><h2>Integrations</h2></div><div class="lines">' +
+      ["LEAP","Actionstep","Osprey"].map(function(n){ return '<div class="line"><div>' + n + '<span class="m">Case management</span></div><span class="small">Not available yet</span></div>'; }).join("") +
+      '</div><p class="small" style="margin:12px 0 0">Integrations ship with the first firm that needs one.</p></div>';
+    h += '<div class="card"><div class="h2row"><h2>Security and compliance</h2></div><dl class="kv">' +
+      '<dt>Data stored in</dt><dd>London, UK</dd><dt>Data processing agreement</dt><dd>Signed 14 Apr 2026</dd>' +
+      '<dt>ICO registration</dt><dd class="slot">[number]</dd><dt>Sub-processors</dt><dd>Listed in the pack</dd>' +
+      '<dt>Lou staff access to content</dt><dd>Ticketed and logged</dd></dl></div>';
+    h += '</section>';
+    return h;
+  }
+  function pendingNote(){
+    return '<div class="pending">Change to <b>' + S.retentionPending + ' years</b> is waiting for Helen Barker\'s approval. Nothing changes until she confirms.</div>';
+  }
+
+  /* ============================================================
+     MATTER TIMELINE CONTENT
+     ============================================================ */
+  function timelineFor(m){
+    if (m.ref === "MTR-1001") return [
+      ["Email · today 10:12","Drainage query sent to the seller's solicitors","Firm only","Sent from Daniel's Outlook · captured"],
+      ["Call · today 09:24","Searches back — drainage query raised","Client can see","Approved summary read by Sarah · 09:58"],
+      ["Risk flag · today 09:31","Exchange blocked until the drainage query is answered","Firm only",""],
+      ["Document · yesterday","Drainage and water search (CON29DW)","Client can see","Read by Sarah · yesterday 18:40"],
+      ["Email · 2 days ago","Mortgage offer confirmed — Halifax","Client can see","Read by Sarah and Daniel"],
+      ["Note · 4 days ago","Seller can complete from mid-September","Client and agent can see","From Priya Nandra, Hamilton & Reeve"]
+    ];
+    if (m.ref === "MTR-0988") return [
+      ["Legal hold · 28 Aug","Matter placed on legal hold","Firm only","Retention paused · Helen Barker"],
+      ["Email · 28 Aug","Complaint received from the clients","Firm only","Acknowledged within 24 hours"],
+      ["Completion · 14 Aug","Completed","Client can see","Read by both clients"],
+      ["Call · 2 Aug","Completion date and funds explained","Client can see","Approved summary read · 2 Aug 16:12"]
+    ];
+    var base = [
+      [["Email · 6 weeks ago","Client care pack sent","Client can see","Read by the client"],["Update · 5 weeks ago","ID and source of funds checked","Firm only",""]],
+      [["Update · 3 weeks ago","Searches ordered","Client and agent can see","Read by the client"],["Document · 9 days ago","Local authority search returned clear","Client can see","Read by the client"]],
+      [["Call · 4 days ago","Enquiries raised with the other side","Client can see","Approved summary read"],["Email · 2 days ago","Replies to enquiries received","Client can see",""]],
+      [["Document · 3 days ago","Contract signed and returned","Client can see","Read by the client"],["Update · yesterday","Deposit received","Client can see",""]],
+      [["Update · 6 days ago","Contracts exchanged","Client and agent can see","Read by the client"],["Email · 2 days ago","Completion statement sent","Client can see","Read by the client"]]
+    ];
+    var out = [];
+    for (var i = Math.max(0, m.stage - 1); i <= m.stage; i++) out = base[i].concat(out);
+    return out;
+  }
+  /* ---------------- matter page ---------------- */
+  var FROM_LABEL = { today:"Today", matters:"Matters", promises:"Promises", supervision:"Supervision", setup:"Setup" };
+  function slugFor(m){
+    if (m.ref === "MTR-1001") return "14meadowroad-k7x9";
+    var base = shortAddr(m).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    var n = +m.ref.slice(4), abc = "abcdefghjkmnpqrstuvwxyz23456789";
+    return base + "-" + abc[n % 31] + abc[(n * 7) % 31] + (n % 9 + 1) + abc[(n * 13) % 31];
+  }
+  function matterEvents(m){
+    if (m.ref === "MTR-1001" || m.ref === "MTR-0988") return timelineFor(m);
+    var today = TODAY.filter(function(i){ return i.ref === m.ref; }).map(function(i){
+      var kind = i.kind === "doc" ? "Document" : i.kind === "call" ? "Call" : "Email";
+      var vis = i.dir === "out" && i.kind === "email" ? "Firm only" : /agent/i.test(i.who + i.title) ? "Firm only" : "Client can see";
+      return [kind + " · today " + i.t, newDesc(i), vis, i.meta];
+    });
+    return today.concat(timelineFor(m));
+  }
+  function matterPromises(ref){
+    var out = [];
+    [["You owe","you"],["Owed to you","toYou"],["Client owes you","clients"]].forEach(function(g){
+      PROMISES[g[1]].forEach(function(p){ if (refOf(p) === ref) out.push([g[0], p]); }); });
+    return out;
+  }
+  function matterPage(){
+    var m = byRef[S.matter]; if (!m) return "";
+    var fe = FEE.filter(function(f){ return f.id === m.fe; })[0];
+    var held = S.holds.indexOf(m.ref) >= 0;
+    var h = '<button class="back" data-back="1"><span aria-hidden="true">←</span> Back to ' + (FROM_LABEL[S.from] || "Today") + '</button>';
+    h += '<span class="eyebrow" style="margin-top:8px">' + m.ref + ' · ' + esc(m.type) + '</span>' +
+      '<h1>' + esc(m.addr) + '</h1><p class="sub">' + esc(m.client) + ' · ' + fe.name + '</p>';
+    h += '<div class="stepper" style="margin-top:18px;max-width:640px">' + STAGES.map(function(s, i){
+      return '<div class="' + (i < m.stage ? "on" : i === m.stage ? "cur" : "") + '">' + s + '</div>'; }).join("") + '</div>';
+    h += '<div class="mpage"><div class="grid" style="align-content:start">';
+    if (m.flag === "risk" || m.flag === "overdue" || held)
+      h += '<div class="card alertcard">' + (held ? chip("info", "On legal hold · retention paused") + '<p>Nothing on this matter can be deleted until the hold is lifted.</p>' :
+        chip(m.flag === "risk" ? "serious" : "warn", m.flag === "risk" ? "Risk flag" : "Overdue promise") + '<p>' + esc(m.why) + '</p>') + '</div>';
+    h += '<section class="card"><div class="h2row"><h2>Shared timeline</h2><span class="note">Newest first</span></div>' +
+      matterEvents(m).map(function(e){
+        var vis = e[2] === "Firm only" ? chip("info", "Firm only") : chip("good", e[2]);
+        return '<div class="ev"><div class="meta">' + esc(e[0]) + '</div><h4>' + esc(e[1]) + '</h4><div class="vis">' + vis + (e[3] ? '<span>' + esc(e[3]) + '</span>' : '') + '</div></div>';
+      }).join("") + '</section></div>';
+    // right rail
+    var proms = matterPromises(m.ref);
+    h += '<div class="rail">';
+    h += '<section class="card"><div class="h2row"><h2>Next</h2></div><p style="margin:0">' + esc(m.next) + '</p></section>';
+    h += '<section class="card"><div class="h2row"><h2>Promises on this matter</h2></div>' + (proms.length ? proms.map(function(x){
+        return '<div class="prom"><div><b>' + esc(x[1][0]) + '</b><span class="m">' + x[0] + ' · ' + esc(x[1][2]) + '</span></div></div>'; }).join("")
+      : '<p class="small" style="margin:0">Nothing outstanding.</p>') + '</section>';
+    h += '<section class="card"><div class="h2row"><h2>Contact details</h2></div><p class="small" style="margin:0 0 8px">What the client calls and writes to. Everything sent here lands on this timeline and in ' + fe.short + '\'s inbox.</p>' +
+      '<div class="mono-line">0161 496 04' + ("0" + (+m.ref.slice(4) % 100)).slice(-2) + '</div><div class="mono-line">' + slugFor(m) + '@matters.meetlou.app</div></section>';
+    h += '<section class="card"><div class="h2row"><h2>Actions</h2></div><div class="dactions" style="margin-top:0">';
+    h += S.bundles[m.ref] ? '<div class="result"><b>Bundle prepared</b> · recordings, transcripts, approved summaries, email, documents, read receipts and the consent log, in date order.</div>'
+                          : '<button class="wide pri" data-bundle="' + m.ref + '">Export evidence bundle</button>';
+    if (S.role === "colp"){
+      if (held) h += '<div class="result"><b>On legal hold.</b> Lifting it is recorded in the audit log.</div>';
+      else if (S.holdConfirm === m.ref) h += '<div class="result">This pauses retention for every record on the matter.<div style="display:flex;gap:8px;margin-top:10px"><button class="btn pri" data-hold-yes="' + m.ref + '">Place hold</button><button class="btn" data-hold-no="1">Cancel</button></div></div>';
+      else h += '<button class="wide" data-hold="' + m.ref + '">Place on legal hold</button>';
+    } else if (!held){
+      h += S.holdAsked[m.ref] ? '<div class="result"><b>Asked.</b> Helen Barker will see the request in Supervision.</div>'
+                              : '<button class="wide" data-hold-ask="' + m.ref + '">Ask the compliance officer for a legal hold</button>';
+    }
+    if (m.ref === "MTR-1001") h += '<a class="wide link" href="' + CLIENT_APP + '" target="_blank" rel="noopener">See Sarah\'s view of this matter ↗</a>';
+    h += '</div></section></div></div>';
+    return h;
+  }
+
+  /* ============================================================
+     NAVIGATION AND SEARCH
+     ============================================================ */
+  var COMPLAINT_URL = "/demo/complaint-workspace/";
+  var ACCESS_URL = "/demo/staff-access-log/";
+  var HOME = { fee:"today", colp:"supervision", pm:"setup" };
+  function navItems(){
+    if (S.role === "fee") return [["today","Today", openTodo().length], ["matters","Matters", 0], ["promises","Promises", overdueCount()]];
+    if (S.role === "colp") return [["supervision","Supervision", 0], ["link:" + COMPLAINT_URL, "Complaints", 0], ["link:" + ACCESS_URL, "Lou staff access", 0]];
+    return [["setup","Setup", 0]];
+  }
+  function renderNav(){
+    var cur = S.page === "matter" ? S.from : S.page;
+    var html = navItems().map(function(n){
+      var badge = n[2] ? '<span class="badge" aria-label="' + n[2] + ' waiting">' + n[2] + '</span>' : '';
+      if (n[0].indexOf("link:") === 0) return '<a class="navlink" href="' + n[0].slice(5) + '" target="_blank" rel="noopener">' + n[1] + '<span class="ext" aria-hidden="true">↗</span></a>';
+      return '<button class="navlink" data-go="' + n[0] + '"' + (cur === n[0] ? ' aria-current="page"' : '') + '>' + n[1] + badge + '</button>';
+    }).join("");
+    $("navList").innerHTML = html;
+    $("tabbar").innerHTML = html;
+    $("tabbar").hidden = navItems().length < 2;
+    var who = { fee:"Daniel Hughes · fee earner", colp:"Helen Barker · compliance officer & partner", pm:"James Whitaker · practice manager" }[S.role];
+    $("whoLine").textContent = who;
+    $("roleSel").value = S.role; $("roleSelM").value = S.role;
+    $("searchBox").hidden = S.role === "pm";
+  }
+  function searchPool(){ return S.role === "fee" ? myMatters() : MATTERS; }
+  function runSearch(q){
+    var box = $("qres"); q = q.toLowerCase().trim();
+    if (!q){ box.hidden = true; box.innerHTML = ""; return []; }
+    var hits = searchPool().filter(function(m){ return (m.addr + " " + m.client + " " + m.ref).toLowerCase().indexOf(q) >= 0; }).slice(0, 6);
+    box.innerHTML = hits.length ? hits.map(function(m, i){
+      return '<button data-sref="' + m.ref + '"' + (i === 0 ? ' class="on"' : '') + '><b>' + esc(shortAddr(m)) + '</b><span>' + esc(m.client) + ' · ' + m.ref + ' · ' + STAGES[m.stage] + '</span></button>'; }).join("")
+      : '<p class="small" style="margin:8px 10px">No matter matches “' + esc(q) + '”.</p>';
+    box.hidden = false;
+    return hits;
+  }
+  function closeSearch(){ $("qres").hidden = true; }
+
+  /* ============================================================
+     RENDER AND WIRING
+     ============================================================ */
+  function render(){
+    hideTip(); renderNav();
+    var h;
+    if (S.page === "matter") h = matterPage();
+    else if (S.role === "fee") h = S.page === "matters" ? mattersPage() : S.page === "promises" ? promisesPage() : todayPage();
+    else if (S.role === "colp") h = colpView();
+    else h = pmView();
+    $("main").innerHTML = h;
+    if (S.role === "colp" && S.page === "supervision") renderColpScoped();
+  }
+  function go(page){ S.page = page; render(); window.scrollTo(0, 0); }
+  function goMatter(ref){ if (S.page !== "matter") S.from = S.page; S.matter = ref; S.page = "matter"; closeSearch(); $("q").value = ""; render(); window.scrollTo(0, 0); }
+  function setRole(r){ S.role = r; S.fe = "all"; S.page = HOME[r]; S.from = HOME[r]; render(); window.scrollTo(0, 0); }
+  function setFe(id){ S.fe = id; var sel = $("feSel"); if (sel) sel.value = id; renderColpScoped(); }
+  function keep(fn){ var y = window.scrollY; fn(); render(); window.scrollTo(0, y); }
+
+  document.addEventListener("click", function(e){
+    var t = e.target;
+    if (!t.closest(".search")) closeSearch();
+    var g = t.closest("[data-go]"); if (g){ go(g.dataset.go); return; }
+    var sr = t.closest("[data-sref]"); if (sr){ goMatter(sr.dataset.sref); return; }
+    if (t.closest("[data-back]")){ go(S.from || HOME[S.role]); return; }
+    var ex = t.closest("[data-expand]"); if (ex){ keep(function(){ S.open[ex.dataset.expand] = true; }); return; }
+    var co = t.closest("[data-collapse]"); if (co){ keep(function(){ S.open[co.dataset.collapse] = false; S.editing[co.dataset.collapse] = false; }); return; }
+    var ed = t.closest("[data-edit]"); if (ed){ keep(function(){ S.editing[ed.dataset.edit] = true; });
+      var el = $("draft-" + ed.dataset.edit); if (el) el.focus(); return; }
+    var pl = t.closest("[data-play]"); if (pl){ keep(function(){ S.played[pl.dataset.play] = true; }); return; }
+    var ap = t.closest("[data-approve]");
+    if (ap){
+      var id = ap.dataset.approve, q = QUEUE.filter(function(x){ return x.id === id; })[0];
+      var dr = $("draft-" + id), edited = dr && DRAFTS[id] && dr.textContent.trim() !== DRAFTS[id].text.trim();
+      if (dr && edited) S.edits[id] = dr.textContent;
+      q.done = true;
+      q.doneMsg = q.kind === "summary" ? (edited ? "Approved with your edits · Oliver can now see it" : "Approved · Oliver can now see it")
+                : q.kind === "overdue" ? "Done · recorded on the file" : (edited ? "Approved with your edits · on the file" : "Approved · on the file");
+      if (q.kind === "overdue") PROMISES.you = PROMISES.you.filter(function(p){ return p[3] !== "late"; });
+      keep(function(){}); return;
+    }
+    var nf = t.closest("[data-newf]"); if (nf){ keep(function(){ S.newFilter = nf.dataset.newf; }); return; }
+    var ti = t.closest("[data-today]"); if (ti){ var item = TODAY.filter(function(x){ return x.id === ti.dataset.today; })[0];
+      if (item) item.unread = false; goMatter(ti.dataset.ref); return; }
+    var mf = t.closest("[data-mf]"); if (mf){ keep(function(){ S.mFilter = mf.dataset.mf; }); return; }
+    var pd = t.closest("[data-pdone]"); if (pd){ keep(function(){ S.prom[pd.dataset.pdone] = "done"; }); return; }
+    var pdr = t.closest("[data-pdraft]"); if (pdr){ keep(function(){ S.prom[pdr.dataset.pdraft] = "draft"; }); return; }
+    var ps = t.closest("[data-psend]"); if (ps){ keep(function(){ S.prom[ps.dataset.psend] = "sent"; }); return; }
+    var pc = t.closest("[data-pcancel]"); if (pc){ keep(function(){ delete S.prom[pc.dataset.pcancel]; }); return; }
+    var bd = t.closest("[data-bundle]"); if (bd){ keep(function(){ S.bundles[bd.dataset.bundle] = true; }); return; }
+    var hd = t.closest("[data-hold]"); if (hd){ keep(function(){ S.holdConfirm = hd.dataset.hold; }); return; }
+    var hy = t.closest("[data-hold-yes]"); if (hy){ keep(function(){ S.holds.push(hy.dataset.holdYes); S.holdConfirm = null; }); return; }
+    if (t.closest("[data-hold-no]")){ keep(function(){ S.holdConfirm = null; }); return; }
+    var ha = t.closest("[data-hold-ask]"); if (ha){ keep(function(){ S.holdAsked[ha.dataset.holdAsk] = true; }); return; }
+    var om = t.closest("[data-open-m]"); if (om){ goMatter(om.dataset.openM); return; }
+    var rg = t.closest("[data-range]"); if (rg){ S.range = +rg.dataset.range;
+      Array.prototype.forEach.call(document.querySelectorAll("[data-range]"), function(b){ b.setAttribute("aria-pressed", String(+b.dataset.range === S.range)); });
+      renderColpScoped(); return; }
+    var fr = t.closest("tr[data-fe-row]"); if (fr){ setFe(S.fe === fr.dataset.feRow ? "all" : fr.dataset.feRow); return; }
+    var fb = t.closest("[data-fe]"); if (fb){ setFe(fb.dataset.fe); var sc = $(fb.dataset.scroll); if (sc) sc.scrollIntoView({ behavior:"smooth", block:"center" }); return; }
+    var vb = t.closest("[data-table]"); if (vb){ var k = vb.dataset.table; TABLE[k] = !TABLE[k];
+      vb.setAttribute("aria-pressed", String(TABLE[k])); vb.textContent = TABLE[k] ? "Chart" : "Table";
+      if (k === "covChart") drawCoverage(); else drawCapture(); return; }
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.target.id === "q"){
+      if (e.key === "Enter"){ var hits = runSearch(e.target.value); if (hits.length) goMatter(hits[0].ref); e.preventDefault(); }
+      if (e.key === "Escape"){ e.target.value = ""; closeSearch(); e.target.blur(); }
+      return;
+    }
+    if (e.key === "/" && !/input|textarea|select/i.test(e.target.tagName) && !e.target.isContentEditable && S.role !== "pm"){ e.preventDefault(); $("q").focus(); return; }
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var row = e.target.closest && e.target.closest("tr[data-fe-row]");
+    if (row){ e.preventDefault(); row.click(); }
+  });
+  document.addEventListener("input", function(e){ if (e.target.id === "q") runSearch(e.target.value); });
+  document.addEventListener("change", function(e){
+    var id = e.target.id;
+    if (id === "roleSel" || id === "roleSelM") setRole(e.target.value);
+    if (id === "feSel") setFe(e.target.value);
+    if (id === "mSort"){ keep(function(){ S.mSort = e.target.value; }); }
+    if (id === "ret"){
+      var v = e.target.value;
+      S.retentionPending = v === S.retention ? null : v;
+      $("retNote").innerHTML = S.retentionPending ? pendingNote() : "";
+    }
+  });
+  var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(function(){
+    if (S.role === "colp" && S.page === "supervision"){ drawCoverage(); drawCapture(); Array.prototype.forEach.call(document.querySelectorAll("[data-spark]"), drawSpark); } }, 120); });
+
+  render();
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,315 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Lou Staff Access Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="robots" content="noindex, nofollow">
+</head><body>
+<style>
+  /* Layout: a firm-facing trust screen, seen by the COLP. Live request awaiting approval at the top,
+     the rules Lou staff work under beside it, then the filter row and the append-only log it scopes.
+     Same tokens as the firm dashboard so it reads as part of the product. */
+  :root{
+    --page:#F6F3ED; --card:#FFFDF8; --panel:#F0EBE3; --ink:#1A1A18; --ink2:#4E4A43;
+    --muted:#7A746A; --rule:#E4DED4; --accent:#C4562A;
+    --good:#0ca30c; --warn:#fab219; --good-text:#006300;
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+      --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --good-text:#0ca30c; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+    --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --good-text:#0ca30c; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  button,select{font:inherit;color:inherit}
+  button{background:none;border:0;padding:0;cursor:pointer;text-align:left}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  .num{font-variant-numeric:tabular-nums}
+  .demobar{background:var(--ink);color:var(--page);font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;text-align:center;padding:6px 12px}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px clamp(16px,3vw,32px) 64px}
+  .eyebrow{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  a.back{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);text-decoration:none}
+  a.back:hover{color:var(--accent)}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.6vw,42px);line-height:1.05;letter-spacing:-.015em;margin:8px 0 0}
+  .sub{color:var(--ink2);margin:6px 0 0;max-width:62ch}
+  h2{font-size:15px;font-weight:600;margin:0}
+  .h2row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .h2row .aside{font-size:12px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 18px 20px;min-width:0}
+  .grid{display:grid;gap:16px}
+  .top{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);margin-top:20px}
+  @media (max-width:980px){.top{grid-template-columns:1fr}}
+  .st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap}
+  .st svg{width:14px;height:14px;flex:0 0 auto}
+
+  /* pending request */
+  .req{border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:12px;padding:14px 16px;background:var(--panel)}
+  .req .who{display:flex;align-items:center;gap:10px}
+  .av{width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;flex:0 0 auto}
+  .req h3{font-size:15px;font-weight:600;margin:12px 0 0;line-height:1.4}
+  .req dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 12px;margin:12px 0 0;font-size:13px}
+  .req dt{color:var(--muted)} .req dd{margin:0}
+  .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+  .btn{font-size:13px;font-weight:500;border:1px solid var(--rule);border-radius:999px;padding:7px 14px;background:var(--card);white-space:nowrap}
+  .btn:hover{border-color:var(--ink2)}
+  .btn.pri{background:var(--ink);color:var(--page);border-color:var(--ink)}
+  select{background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:6px 10px;font-size:12.5px}
+  .result{font-size:13px;color:var(--ink2);background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin-top:14px}
+  .result b{color:var(--ink)}
+
+  /* rules */
+  .rules{display:grid}
+  .rl{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--rule)}
+  .rl:first-child{border-top:0;padding-top:0}
+  .rl b{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent);padding-top:1px}
+  .rl h3{font-size:13.5px;font-weight:600;margin:0}
+  .rl p{margin:2px 0 0;font-size:12.5px;color:var(--ink2)}
+
+  /* filters + tiles */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:26px;padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--card)}
+  .seg button{padding:5px 12px;border-radius:999px;font-size:12.5px;color:var(--ink2);white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+  .filters .scope{font-size:12px;color:var(--muted);margin-left:auto}
+  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+  @media (max-width:760px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .tile{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:13px 14px 14px}
+  .tile .lbl{font-size:12.5px;color:var(--ink2)}
+  .tile .val{font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-top:6px}
+  .tile .ctx{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:6px;align-items:center}
+  .tile .ctx svg{width:13px;height:13px}
+
+  /* log */
+  .entry{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;padding:14px 0;border-top:1px solid var(--rule);align-items:start}
+  .entry:first-child{border-top:0;padding-top:2px}
+  @media (max-width:700px){.entry{grid-template-columns:1fr}.entry .right{justify-self:start}}
+  .entry .when{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.5}
+  .entry h3{font-size:14px;font-weight:600;margin:0;line-height:1.4}
+  .entry .meta{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:5px;font-size:12.5px;color:var(--ink2)}
+  .entry .meta span b{font-weight:500;color:var(--ink)}
+  .kind{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--rule);border-radius:999px;padding:2px 8px;color:var(--ink2);white-space:nowrap}
+  .kind.content{border-color:var(--accent);color:var(--accent)}
+  .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .more{font-size:12px;border:1px solid var(--rule);border-radius:999px;padding:3px 10px;white-space:nowrap}
+  .detail{grid-column:2 / -1;background:var(--panel);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--ink2)}
+  @media (max-width:700px){.detail{grid-column:1}}
+  .detail ol{margin:0;padding-left:18px;display:grid;gap:4px}
+  .detail code{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+  .empty{font-size:13px;color:var(--muted);padding:6px 0}
+
+  .people{display:grid}
+  .person{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--rule)}
+  .person:first-child{border-top:0;padding-top:0}
+  .person b{font-weight:500;display:block}
+  .person span.m{font-size:12px;color:var(--muted)}
+  .person .acc{font-size:12px;color:var(--ink2);text-align:right}
+  .never{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+  .never li{font-size:13px;color:var(--ink2);padding-left:16px;position:relative}
+  .never li::before{content:"";position:absolute;left:0;top:9px;width:8px;height:2px;background:var(--accent)}
+</style>
+
+<div class="demobar">Demo firm · example data</div>
+
+<div class="wrap">
+  <a class="back" href="/demo/firm-dashboard/">← Supervision</a>
+  <span class="eyebrow" style="margin-top:14px">Calder &amp; Lowe · seen by Helen Barker, compliance officer · Thu 4 Sep 2026, 14:10</span>
+  <h1>Lou staff access</h1>
+  <p class="sub">Every time anyone at Lou opened anything belonging to your firm, why, and who agreed to it. Nothing here can be edited or deleted, by you or by us.</p>
+
+  <div class="grid top">
+    <div class="card">
+      <div class="h2row"><h2>Waiting for you</h2><span class="aside" id="pendNote">1 request</span></div>
+      <div id="pending"></div>
+    </div>
+    <div class="card">
+      <div class="h2row"><h2>The rules Lou staff work under</h2><span class="aside">Set out in full in the security pack</span></div>
+      <div class="rules">
+        <div class="rl"><b>1</b><div><h3>No routine access</h3><p>Nobody at Lou can see your recordings, transcripts, email or documents by default.</p></div></div>
+        <div class="rl"><b>2</b><div><h3>Every access has a ticket</h3><p>Usually one you or your team raised. No ticket, no access.</p></div></div>
+        <div class="rl"><b>3</b><div><h3>Content needs your approval first</h3><p>Scoped to one matter and one item, for a set window, then closed automatically.</p></div></div>
+        <div class="rl"><b>4</b><div><h3>Metadata is logged too</h3><p>Counts, timings and error codes can be checked during an incident without approval. Each check still appears here.</p></div></div>
+        <div class="rl"><b>5</b><div><h3>Emergency access is reported within the hour</h3><p>Only when calls are failing to store and fixing it needs content. You're told within an hour and it's reviewed with you.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <div class="seg" id="rangeSeg"></div>
+    <div class="seg" id="typeSeg"></div>
+    <span class="scope" id="scope"></span>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="h2row"><h2>Access log</h2><span class="aside">Newest first · append-only</span></div>
+    <div id="log"></div>
+  </div>
+
+  <div class="grid top">
+    <div class="card">
+      <div class="h2row"><h2>Who at Lou can ask for access</h2><span class="aside">Reviewed monthly</span></div>
+      <div class="people">
+        <div class="person"><span class="av">J</span><div><b>Jordan Daniels</b><span class="m">Head of Product · on call</span></div><span class="acc">Can request access<br>Two-factor sign-in</span></div>
+        <div class="person"><span class="av">M</span><div><b>Minal Harji</b><span class="m">CFO</span></div><span class="acc">No access to firm data<br>Billing only</span></div>
+        <div class="person"><span class="av">–</span><div><b>Partnerships and sales</b><span class="m">Everyone else at Lou</span></div><span class="acc">No access to firm data</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="h2row"><h2>What Lou staff can never do</h2></div>
+      <ul class="never">
+        <li>Play a recording or read a transcript, email or document without your approval, except in an emergency you're told about within the hour.</li>
+        <li>Change or delete anything on your record, or this log.</li>
+        <li>Export an evidence bundle. Only your firm can.</li>
+        <li>Look at your firm's data while working on another firm's, including the firm on the other side of a transaction.</li>
+        <li>Use your data to train shared models.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); };
+  function icon(kind){
+    if (kind === "good") return '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--good)"/><path d="M4.8 8.3 7 10.4l4.2-4.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (kind === "warn") return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6 15 14H1z" fill="var(--warn)"/><path d="M8 6v3.6" stroke="#1A1A18" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.8" r=".95" fill="#1A1A18"/></svg>';
+    return '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="var(--muted)" stroke-width="1.3"/><path d="M8 7.2v4" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="5" r=".9" fill="var(--muted)"/></svg>';
+  }
+  function chip(kind, label){ return '<span class="st">' + icon(kind) + esc(label) + '</span>'; }
+
+  // days before 4 Sep 2026, for range filtering
+  var LOG = [
+    { id:"a6", when:"4 Sep · 13:55", age:0, who:"Jordan Daniels", type:"metadata", ticket:"LOU-0141",
+      title:"Checked the channel count and length of the 13:20 call on MTR-1055",
+      reason:"The recording came back mono. Checking whether the fault was Twilio's or the handset's.",
+      approved:"Not needed · metadata only", closed:"Closed 13:58",
+      steps:["Read recording metadata: <code>channels=1</code>, <code>duration=484s</code>","Read Twilio call log for the call: no errors","No content opened"] },
+    { id:"a5", when:"27 Aug · 11:20", age:8, who:"Jordan Daniels", type:"metadata", ticket:"LOU-0117",
+      title:"Re-sent 6 calls for transcription after the provider outage",
+      reason:"The transcription provider failed for 40 minutes. Six of your calls needed re-queuing.",
+      approved:"Not needed · metadata only", closed:"Closed 11:34",
+      steps:["Listed calls with no transcript since 10:31, by identifier only","Re-queued 6 calls","Confirmed all 6 summaries reached your fee earners for approval","No content opened"] },
+    { id:"a4", when:"12 Aug · 15:02", age:23, who:"Jordan Daniels", type:"content", ticket:"LOU-0098",
+      title:"Opened the summary of one call on MTR-0941, at your request",
+      reason:"Daniel Hughes reported a wrong completion date in a summary. Needed to see the summary and the transcript line it came from.",
+      approved:"Approved by Helen Barker · 12 Aug, 14:51", closed:"Window 2 hours · closed 15:20",
+      steps:["Opened the approved summary of the call of 11 Aug, 10:14","Read transcript lines from 1:52 to 2:30 only","Found the model had read “the twentieth” as 20 Aug instead of 20 Sep","Fix added to the quality tests; the fee earner had already corrected the summary before approving it"] },
+    { id:"a3", when:"21 Apr · 10:14", age:136, who:"Jordan Daniels", type:"metadata", ticket:"LOU-0012",
+      title:"Set up 60 matter lines and email addresses",
+      reason:"Onboarding, requested by James Whitaker.",
+      approved:"Requested by James Whitaker", closed:"Closed 12:40",
+      steps:["Created 60 matter lines in the 0161 496 04xx range","Created matter addresses on matters.meetlou.app","No content existed yet"] },
+    { id:"a2", when:"14 Apr · 09:30", age:143, who:"Jordan Daniels", type:"metadata", ticket:"LOU-0004",
+      title:"Go-live checks on the mail domain and a test matter",
+      reason:"Confirming the MX record and that a test call and email reached a test matter.",
+      approved:"Requested by James Whitaker", closed:"Closed 10:05",
+      steps:["Checked the MX record for matters.meetlou.app","Placed one test call and sent one test email to a test matter","Deleted the test matter in a logged run"] }
+  ];
+  var PENDING = [{ id:"p1", who:"Jordan Daniels", ticket:"LOU-0141",
+    what:"Listen to the first 60 seconds of the 13:20 call on MTR-1055",
+    why:"The metadata didn't show whether the mono recording came from Twilio or from the handset. Hearing whether both voices are on the one channel tells us which, and whether other calls could be affected.",
+    scope:"One recording, 0:00 to 1:00 only. No transcript, no other items.", status:"open" }];
+
+  var S = { range:"all", type:"all" };
+  var RANGES = [["30","Last 30 days"],["90","Last 90 days"],["all","Since go-live"]];
+  var TYPES = [["all","All access"],["content","Content"],["metadata","Metadata only"]];
+
+  function filtered(){
+    return LOG.filter(function(e){
+      var inRange = S.range === "all" || e.age <= +S.range;
+      var inType = S.type === "all" || e.type === S.type;
+      return inRange && inType;
+    });
+  }
+
+  function renderSegs(){
+    $("rangeSeg").innerHTML = RANGES.map(function(r){ return '<button data-range="' + r[0] + '" aria-pressed="' + (S.range === r[0]) + '">' + r[1] + '</button>'; }).join("");
+    $("typeSeg").innerHTML = TYPES.map(function(r){ return '<button data-type="' + r[0] + '" aria-pressed="' + (S.type === r[0]) + '">' + r[1] + '</button>'; }).join("");
+    var r = RANGES.filter(function(x){ return x[0] === S.range; })[0][1];
+    $("scope").textContent = (S.range === "all" ? "Since go-live" : r) + " · " + TYPES.filter(function(x){ return x[0] === S.type; })[0][1].toLowerCase();
+  }
+
+  function renderTiles(){
+    var rows = LOG.filter(function(e){ return S.range === "all" || e.age <= +S.range; });
+    var content = rows.filter(function(e){ return e.type === "content" && e.opened !== false; });
+    var approved = content.filter(function(e){ return /Approved by/.test(e.approved); }).length;
+    function t(l, v, ctx, kind){ return '<div class="tile"><div class="lbl">' + l + '</div><div class="val num">' + v + '</div><div class="ctx">' + (kind ? icon(kind) : "") + esc(ctx) + '</div></div>'; }
+    $("tiles").innerHTML =
+      t("Times Lou staff accessed your data", rows.length, "all with a ticket") +
+      t("Content access granted", content.length, content.length ? approved + " of " + content.length + " approved by you first" : "none in this period", content.length && approved === content.length ? "good" : null) +
+      t("Without a ticket", 0, "never", "good") +
+      t("Emergency access", 0, "never used", "good");
+  }
+
+  function renderLog(){
+    var rows = filtered();
+    $("log").innerHTML = rows.length ? rows.map(function(e){
+      return '<div class="entry"><div class="when">' + esc(e.when) + '<br>' + e.ticket + '</div>' +
+        '<div><h3>' + esc(e.title) + '</h3><div class="meta"><span><b>' + esc(e.who) + '</b></span><span>' + esc(e.reason) + '</span></div>' +
+        '<div class="meta"><span>' + esc(e.approved) + '</span><span>' + esc(e.closed) + '</span></div></div>' +
+        '<div class="right"><span class="kind' + (e.type === "content" ? " content" : "") + '">' + (e.type === "content" ? "Content" : "Metadata") + '</span>' +
+        '<button class="more" data-open="' + e.id + '" aria-expanded="' + !!e.open + '">' + (e.open ? "Hide steps" : "What they did") + '</button></div>' +
+        (e.open ? '<div class="detail"><ol>' + e.steps.map(function(s){ return '<li>' + s + '</li>'; }).join("") + '</ol></div>' : '') + '</div>';
+    }).join("") : '<p class="empty">No access in this period.</p>';
+  }
+
+  function renderPending(){
+    var open = PENDING.filter(function(p){ return p.status === "open"; });
+    $("pendNote").textContent = open.length ? open.length + " request" : "Nothing waiting";
+    $("pending").innerHTML = PENDING.map(function(p){
+      if (p.status === "approved") return '<div class="result">' + icon("good").replace("<svg","<svg style=\"width:14px;height:14px;vertical-align:-2px;margin-right:6px\"") +
+        '<b>Approved for ' + p.window + '.</b> Jordan can listen to 0:00 to 1:00 of the 13:20 call on MTR-1055 and nothing else, until ' + p.until + '. The window closes itself, and every second played is logged below.</div>';
+      if (p.status === "declined") return '<div class="result"><b>Declined.</b> Jordan has been told, the investigation continues from metadata only, and your decision is in the log below.</div>';
+      return '<div class="req"><div class="who"><span class="av">J</span><div><b style="font-weight:500">' + esc(p.who) + '</b><div style="font-size:12px;color:var(--muted)">Lou · ticket ' + p.ticket + ' · asked 14:02</div></div>' +
+        '<span class="kind content" style="margin-left:auto">Content</span></div>' +
+        '<h3>' + esc(p.what) + '</h3><dl><dt>Why</dt><dd>' + esc(p.why) + '</dd><dt>Exactly what</dt><dd>' + esc(p.scope) + '</dd></dl>' +
+        '<div class="acts"><label for="win" style="font-size:12.5px;color:var(--ink2)">Allow for</label><select id="win"><option value="30 minutes">30 minutes</option><option value="1 hour" selected>1 hour</option><option value="2 hours">2 hours</option></select>' +
+        '<button class="btn pri" data-decide="approve">Approve</button><button class="btn" data-decide="decline">Decline</button></div></div>';
+    }).join("");
+  }
+
+  function addMinutes(label){ var m = { "30 minutes":30, "1 hour":60, "2 hours":120 }[label]; var t = 14*60 + 10 + m;
+    return Math.floor(t/60) + ":" + ("0" + (t % 60)).slice(-2); }
+
+  document.addEventListener("click", function(e){
+    var t = e.target;
+    var r = t.closest("[data-range]"); if (r){ S.range = r.dataset.range; renderSegs(); renderTiles(); renderLog(); return; }
+    var y = t.closest("[data-type]"); if (y){ S.type = y.dataset.type; renderSegs(); renderLog(); return; }
+    var o = t.closest("[data-open]"); if (o){ var en = LOG.filter(function(x){ return x.id === o.dataset.open; })[0]; en.open = !en.open; renderLog(); return; }
+    var d = t.closest("[data-decide]");
+    if (d){
+      var p = PENDING[0];
+      if (d.dataset.decide === "approve"){
+        p.status = "approved"; p.window = $("win").value; p.until = addMinutes(p.window);
+        LOG.unshift({ id:"a7", when:"4 Sep · 14:10", age:0, who:"Jordan Daniels", type:"content", ticket:"LOU-0141",
+          title:"Approved to listen to 0:00 to 1:00 of the 13:20 call on MTR-1055",
+          reason:"Finding whether the mono recording came from Twilio or the handset.",
+          approved:"Approved by Helen Barker · 4 Sep, 14:10", closed:"Window " + p.window + " · open until " + p.until,
+          steps:["Access granted to one recording, first 60 seconds only","Nothing played yet"] });
+      } else {
+        p.status = "declined";
+        LOG.unshift({ id:"a7", when:"4 Sep · 14:10", age:0, who:"Jordan Daniels", type:"content", ticket:"LOU-0141",
+          title:"Request to listen to the 13:20 call on MTR-1055 declined",
+          reason:"Investigation continues from metadata only.",
+          approved:"Declined by Helen Barker · 4 Sep, 14:10", closed:"No access given", opened:false, steps:["Nothing opened"] });
+      }
+      renderPending(); renderTiles(); renderLog();
+    }
+  });
+
+  renderPending(); renderSegs(); renderTiles(); renderLog();
+})();
+</script>
+
+</body></html>

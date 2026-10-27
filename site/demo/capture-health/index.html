@@ -1,0 +1,472 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Lou Capture Health</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="robots" content="noindex, nofollow">
+</head><body>
+<style>
+  /* Layout: Lou's own operations screen. Live incident and the one number that matters (calls lost)
+     sit above the firm filter; everything below it is scoped to the chosen firm. Built to be read on a
+     phone when paged. Chart marks use the validated palette; status colours mean state only. */
+  :root{
+    --page:#F6F3ED; --card:#FFFDF8; --panel:#F0EBE3; --ink:#1A1A18; --ink2:#4E4A43;
+    --muted:#7A746A; --rule:#E4DED4; --accent:#C4562A;
+    --s1:#2a78d6; --s2:#eb6834; --grid:#ebe7df; --axis:#c3c2b7;
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b; --good-text:#006300;
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+      --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --s1:#3987e5; --s2:#d95926;
+      --grid:#2a2824; --axis:#3b3934; --good-text:#0ca30c; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
+    --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --s1:#3987e5; --s2:#d95926;
+    --grid:#2a2824; --axis:#3b3934; --good-text:#0ca30c; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  .num{font-variant-numeric:tabular-nums}
+  .demobar{background:var(--ink);color:var(--page);font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;text-align:center;padding:6px 12px}
+  .wrap{max-width:1280px;margin:0 auto;padding:24px clamp(16px,3vw,32px) 64px}
+  .eyebrow{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.6vw,42px);line-height:1.05;margin:6px 0 0;letter-spacing:-.015em}
+  .sub{color:var(--ink2);margin:6px 0 0}
+  h2{font-size:15px;font-weight:600;margin:0}
+  .h2row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .h2row .note{font-size:12px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 18px 20px;min-width:0}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g21{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+  @media (max-width:1080px){.g2,.g21{grid-template-columns:1fr}}
+  section{margin-top:22px}
+  .st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap}
+  .st svg{width:14px;height:14px;flex:0 0 auto}
+
+  .incident{margin-top:20px;border:1px solid var(--rule);border-left:4px solid var(--warn);border-radius:12px;background:var(--card);
+    padding:14px 16px;display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:12px;align-items:start}
+  .incident svg{width:18px;height:18px;margin-top:2px}
+  .incident h2{font-size:15.5px}
+  .incident p{margin:4px 0 0;color:var(--ink2);font-size:13.5px}
+  .incident .when{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;white-space:nowrap;line-height:1.6}
+  @media (max-width:640px){.incident{grid-template-columns:20px minmax(0,1fr)}.incident .when{grid-column:2;text-align:left}}
+
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:16px;margin-top:16px}
+  @media (max-width:900px){.hero{grid-template-columns:1fr}}
+  .big{font-size:60px;font-weight:600;letter-spacing:-.035em;line-height:1;margin-top:10px}
+  .delta{font-size:13px;color:var(--good-text);font-weight:500;margin-top:8px}
+  .rules{display:grid;gap:0}
+  .rule{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:9px 0;border-top:1px solid var(--rule);font-size:13px}
+  .rule:first-child{border-top:0;padding-top:0}
+  .rule b{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent)}
+  .rule span{color:var(--ink2)}
+
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:26px;padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--card)}
+  .seg button{padding:5px 12px;border-radius:999px;font-size:12.5px;color:var(--ink2);white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--page)}
+  .filters .scope{font-size:12px;color:var(--muted);margin-left:auto}
+
+  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+  @media (max-width:760px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .tile{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:13px 14px 14px}
+  .tile .lbl{font-size:12.5px;color:var(--ink2)}
+  .tile .val{font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-top:6px}
+  .tile .ctx{font-size:12px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:6px}
+  .tile .ctx svg{width:13px;height:13px}
+
+  .charthead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .charthead p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
+  .viewbtn{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--rule);border-radius:999px;padding:4px 10px;white-space:nowrap}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:12.5px;color:var(--ink2)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:2px;display:block}
+  .legend i.ln{height:2px;width:14px;border-radius:1px}
+  .plot{margin-top:10px}
+  .plot svg{display:block;width:100%;overflow:visible}
+  .plot text{font-family:var(--sans);font-size:11px;fill:var(--muted)}
+  .plot text.v{fill:var(--ink);font-weight:500;font-size:12px}
+  .hit{fill:transparent}
+  .hit:focus{outline:none}
+  .hit:focus-visible{stroke:var(--accent);stroke-width:2}
+  #tip{position:fixed;z-index:60;pointer-events:none;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:9px 11px;
+    box-shadow:0 6px 24px rgba(20,16,10,.14);font-size:12px;min-width:150px;max-width:260px}
+  #tip .t{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  #tip .row{display:grid;grid-template-columns:12px auto 1fr;gap:7px;align-items:center;margin-top:5px}
+  #tip .row i{height:2px;border-radius:1px;display:block}
+  #tip .row b{font-weight:600;font-variant-numeric:tabular-nums}
+  #tip .row span{color:var(--ink2)}
+
+  .tbl{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:left;
+    padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap}
+  td{padding:10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.r,th.r{text-align:right}
+  .small{font-size:12px;color:var(--muted)}
+  tbody tr.sel td{background:color-mix(in srgb,var(--s1) 8%,transparent)}
+
+  .log{display:grid}
+  .ev{display:grid;grid-template-columns:52px 18px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--rule)}
+  .ev:first-child{border-top:0;padding-top:0}
+  .ev .t{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:1px}
+  .ev svg{width:15px;height:15px;margin-top:2px}
+  .ev h3{font-size:13.5px;font-weight:600;margin:0;line-height:1.35}
+  .ev p{margin:2px 0 0;font-size:12.5px;color:var(--ink2)}
+  .ev .firm{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted);white-space:nowrap;text-align:right}
+  @media (max-width:640px){.ev{grid-template-columns:44px 18px minmax(0,1fr)}.ev .firm{grid-column:3;text-align:left}}
+  .prov{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;padding:9px 0;border-top:1px solid var(--rule);font-size:13px;align-items:center}
+  .prov:first-child{border-top:0;padding-top:0}
+  .prov span.m{display:block;font-size:12px;color:var(--muted)}
+  .prov .lat{font-family:var(--mono);font-size:11px;color:var(--ink2);white-space:nowrap}
+  .jobs{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;font-size:13px}
+  .jobs dt{color:var(--ink2)} .jobs dd{margin:0;text-align:right;font-weight:500}
+</style>
+
+<div class="demobar">Lou internal · illustration with fictional firms, not real usage</div>
+<div id="tip" hidden></div>
+
+<div class="wrap">
+  <span class="eyebrow">Lou operations · Thu 4 Sep 2026 · as of 14:10</span>
+  <h1>Capture health</h1>
+  <p class="sub">Is every call and email reaching the right matter? If the answer is ever no, this page says so first.</p>
+
+  <div class="incident" role="status">
+    <span id="incIcon"></span>
+    <div><h2>Recording downloads delayed for Hallam Read</h2>
+      <p>Twilio is returning errors on two recording downloads. Retries are running, the recordings are safe on Twilio, and no calls are lost. If either is still waiting at 14:22 it pages as a P1.</p></div>
+    <div class="when">Started 13:52<br>On call: Jordan</div>
+  </div>
+
+  <div class="hero">
+    <div class="card">
+      <span class="lbl" style="font-size:13px;color:var(--ink2)">Calls lost · last 30 days</span>
+      <div class="big num">0</div>
+      <div class="delta">No call has been lost since go-live</div>
+      <p class="small" style="margin:12px 0 0">A call counts as lost when a firm's client rang a matter line and no recording reached storage. It's the one failure a conveyancer won't forgive.</p>
+    </div>
+    <div class="card">
+      <div class="h2row"><h2>When someone gets paged</h2><span class="note">Not scoped by the filter below</span></div>
+      <div class="rules">
+        <div class="rule"><b>P1 · SMS</b><span>A call received but not in storage after 30 minutes. A webhook endpoint failing for more than 5 minutes. Any signature check failing on a real provider request.</span></div>
+        <div class="rule"><b>P2 · Slack</b><span>Time to summary above 20 minutes for an hour. A firm's capture rate below 95% today. Transcription queue deeper than 20.</span></div>
+        <div class="rule"><b>Digest</b><span>Mono recordings, unrouted email, calls under 15 seconds, fee earners not active this week.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters" role="group" aria-label="Firm">
+    <div class="seg" id="firmSeg"></div>
+    <span class="scope" id="scope"></span>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section class="grid g2">
+    <div class="card"><div class="charthead"><div><h2>Calls today, by hour</h2><p>Every call received on a matter line, and where it is now.</p></div>
+      <button class="viewbtn" data-table="hours" aria-pressed="false">Table</button></div><div id="hours"></div></div>
+    <div class="card"><div class="charthead"><div><h2>Time from call end to summary</h2><p>Minutes, daily, last 14 days. Median and the slowest 5%.</p></div>
+      <button class="viewbtn" data-table="tts" aria-pressed="false">Table</button></div><div id="tts"></div></div>
+  </section>
+
+  <section class="card">
+    <div class="h2row"><h2>Firms</h2><span class="note">Select a row to scope the page to one firm</span></div>
+    <div class="tbl" id="firms"></div>
+  </section>
+
+  <section class="grid g21">
+    <div class="card"><div class="h2row"><h2>Exceptions today</h2><span class="note" id="logNote"></span></div><div class="log" id="log"></div></div>
+    <div class="grid" style="align-content:start">
+      <div class="card"><div class="h2row"><h2>Providers</h2><span class="note">Last hour</span></div><div id="providers"></div></div>
+      <div class="card"><div class="h2row"><h2>Queues and scheduled jobs</h2></div>
+        <dl class="jobs">
+          <dt>Recordings waiting to download</dt><dd class="num">2</dd>
+          <dt>Transcription queue</dt><dd class="num">0</dd>
+          <dt>Summary queue</dt><dd class="num">1</dd>
+          <dt>Summaries waiting for a fee earner</dt><dd class="num">11</dd>
+          <dt>Retention run</dt><dd>1 Sep · nothing due</dd>
+          <dt>Next retention run</dt><dd>1 Oct, 02:00</dd>
+        </dl></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); };
+  function icon(kind){
+    var c = { good:"var(--good)", warn:"var(--warn)", serious:"var(--serious)", crit:"var(--crit)" }[kind];
+    if (kind === "good") return '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="'+c+'"/><path d="M4.8 8.3 7 10.4l4.2-4.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (kind === "warn") return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6 15 14H1z" fill="'+c+'"/><path d="M8 6v3.6" stroke="#1A1A18" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.8" r=".95" fill="#1A1A18"/></svg>';
+    if (kind === "serious" || kind === "crit") return '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="'+c+'"/><path d="M8 4.3v4.4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.3" r="1" fill="#fff"/></svg>';
+    if (kind === "sec") return '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 13.5 3.6v4.1c0 3.2-2.3 5.6-5.5 6.8C4.8 13.3 2.5 10.9 2.5 7.7V3.6z" fill="none" stroke="var(--ink2)" stroke-width="1.4"/><path d="M8 5.6v3" stroke="var(--ink2)" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="10.8" r=".85" fill="var(--ink2)"/></svg>';
+    return '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="var(--muted)" stroke-width="1.3"/><path d="M8 7.2v4" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="5" r=".9" fill="var(--muted)"/></svg>';
+  }
+  function chip(kind, label){ return '<span class="st">' + icon(kind) + esc(label) + '</span>'; }
+  $("incIcon").innerHTML = icon("warn");
+
+  /* ---------------- data ---------------- */
+  var FIRMS = [
+    { id:"nw", name:"Ashworth Bell · high street, Leeds", short:"Ashworth Bell", lines:60, active:"4 of 4", activeOk:true,
+      calls:[3,7,9,8,5,7,2], waiting:[0,0,0,0,0,0,0], suppressed:1, emails:148, unrouted:0, mono7:2, ttsToday:3.6, last:"14:06", status:"good" },
+    { id:"mid", name:"Hallam Read · regional, Bristol", short:"Hallam Read", lines:118, active:"7 of 9", activeOk:false,
+      calls:[4,9,11,10,6,8,3], waiting:[0,0,0,0,0,2,0], suppressed:1, emails:196, unrouted:0, mono7:0, ttsToday:5.9, last:"14:08", status:"warn" },
+    { id:"ldn", name:"Penrose Kaye · boutique, Brighton", short:"Penrose Kaye", lines:41, active:"3 of 3", activeOk:true,
+      calls:[2,5,6,6,4,5,1], waiting:[0,0,0,0,0,0,0], suppressed:0, emails:102, unrouted:1, mono7:0, ttsToday:3.4, last:"14:01", status:"good" }
+  ];
+  var HOURS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00"];
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var R = rng(77);
+  var DAYS = []; for (var d = 0; d < 14; d++){ var dt = new Date(Date.UTC(2026,7,22)); dt.setUTCDate(dt.getUTCDate() + d); DAYS.push(dt); }
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var dl = function(x){ return x.getUTCDate() + " " + MON[x.getUTCMonth()]; };
+  FIRMS.forEach(function(f, k){
+    f.tts = DAYS.map(function(day, i){
+      var inc = i === 5;                         // 27 Aug: transcription provider incident
+      var today = i === 13;
+      var p50 = inc ? 9.2 + R()*0.8 : 3.4 + R()*0.7 + (f.id === "mid" ? 0.3 : 0);
+      var p95 = inc ? 31 + R()*3 : 7.8 + R()*2.2 + (f.id === "mid" ? 0.8 : 0);
+      if (today && f.id === "mid"){ p50 = 5.9; p95 = 17.5; }
+      return { d:day, p50:p50, p95:p95 };
+    });
+  });
+  var LOG = [
+    ["13:58","warn","Recording download returned 503, retry 3 of 6","Recording RE…a91 · stored on Twilio, waiting to download","mid"],
+    ["13:52","warn","Recording download timed out, retrying","Recording RE…7c2 · stored on Twilio, waiting to download","mid"],
+    ["13:29","warn","Mono recording stored and flagged","MTR-1055 · speakers not separated, never shown as diarised","nw"],
+    ["11:58","info","Call under 15 seconds, stored and not filed","MTR-1034 · 9 seconds","nw"],
+    ["11:12","info","Call under 15 seconds, stored and not filed","8 seconds · misdial","mid"],
+    ["10:47","info","Email to an address that matches no matter","One character off a real matter address · logged, sender told","ldn"],
+    ["09:12","sec","2 requests rejected on the voice webhook","Signature check failed · not from Twilio · nothing written","all"],
+    ["02:00","good","Nightly checks passed","Audit log append-only · buckets private · region London","all"]
+  ];
+  var PROVIDERS = [
+    ["Twilio voice webhooks","Calls to matter lines","good","Healthy","p95 180 ms"],
+    ["Twilio recordings API","Recording downloads","warn","Errors on 2 downloads","3 retries"],
+    ["SendGrid Inbound Parse","Matter email","good","Healthy","p95 2.1 s"],
+    ["Supabase","Database, storage, functions · London","good","Healthy","p95 41 ms"],
+    ["Transcription","Speech to text","good","Healthy","p50 48 s"],
+    ["Summariser","Plain-English summaries","good","Healthy","p50 22 s"]
+  ];
+
+  /* ---------------- tooltip ---------------- */
+  var tip = $("tip");
+  function showTip(x, y, title, rows){
+    tip.textContent = "";
+    var t = document.createElement("div"); t.className = "t"; t.textContent = title; tip.appendChild(t);
+    rows.forEach(function(r){ var d = document.createElement("div"); d.className = "row";
+      var k = document.createElement("i"); k.style.background = r.color || "var(--muted)";
+      var b = document.createElement("b"); b.textContent = r.value;
+      var s = document.createElement("span"); s.textContent = r.label;
+      d.appendChild(k); d.appendChild(b); d.appendChild(s); tip.appendChild(d); });
+    tip.hidden = false;
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(innerWidth - w - 10, x + 14)) + "px";
+    tip.style.top = (y - h - 12 < 8 ? y + 16 : y - h - 12) + "px";
+  }
+  function hideTip(){ tip.hidden = true; }
+
+  /* ---------------- state + aggregation ---------------- */
+  var S = { firm:"all", table:{ hours:false, tts:false } };
+  function sel(){ return S.firm === "all" ? FIRMS : FIRMS.filter(function(f){ return f.id === S.firm; }); }
+  function sum(a){ return a.reduce(function(s, x){ return s + x; }, 0); }
+
+  function renderSeg(){
+    $("firmSeg").innerHTML = [["all","All firms"]].concat(FIRMS.map(function(f){ return [f.id, f.short]; })).map(function(o){
+      return '<button data-firm="' + o[0] + '" aria-pressed="' + (S.firm === o[0]) + '">' + o[1] + '</button>'; }).join("");
+    $("scope").textContent = (S.firm === "all" ? "All three pilot firms" : sel()[0].name) + " · today unless stated";
+  }
+
+  function renderTiles(){
+    var fs = sel();
+    var received = sum(fs.map(function(f){ return sum(f.calls); }));
+    var waiting = sum(fs.map(function(f){ return sum(f.waiting); }));
+    var stored = received - waiting;
+    var supp = sum(fs.map(function(f){ return f.suppressed; }));
+    var emails = sum(fs.map(function(f){ return f.emails; }));
+    var unr = sum(fs.map(function(f){ return f.unrouted; }));
+    var mono = sum(fs.map(function(f){ return f.mono7; }));
+    var tts = fs.map(function(f){ return f.ttsToday; }); var ttsMed = tts.slice().sort()[Math.floor((tts.length-1)/2)];
+    if (fs.length === 3) ttsMed = 4.1;
+    function t(l, v, ctx, kind){ return '<div class="tile"><div class="lbl">' + l + '</div><div class="val">' + v + '</div><div class="ctx">' +
+      (kind ? icon(kind) : '') + esc(ctx) + '</div></div>'; }
+    $("tiles").innerHTML =
+      t("Calls received", received, "on matter lines") +
+      t("Stored", stored, supp + " under 15 seconds, not filed") +
+      t("Waiting to download", waiting, waiting ? "retrying · not lost" : "none", waiting ? "warn" : "good") +
+      t("Lost", 0, "none today", "good") +
+      t("Emails received", emails, "to matter addresses") +
+      t("Unrouted email", unr, unr ? "logged, sender told" : "none", unr ? "info" : "good") +
+      t("Time to summary", ttsMed.toFixed(1) + " min", "median today") +
+      t("Mono recordings", mono, "last 7 days · flagged", mono ? "warn" : "good");
+  }
+
+  /* ---- chart: calls today by hour (stacked: stored, waiting) ---- */
+  var HSER = [["stored","Stored","var(--s1)"],["waiting","Waiting to download","var(--warn)"]];
+  function hoursData(){
+    return HOURS.map(function(h, i){
+      var rec = 0, wait = 0;
+      sel().forEach(function(f){ rec += f.calls[i]; wait += f.waiting[i]; });
+      return { h:h, stored:rec - wait, waiting:wait, total:rec, partial:i === HOURS.length - 1 };
+    });
+  }
+  function drawHours(){
+    var host = $("hours"), data = hoursData();
+    var legend = '<div class="legend">' + HSER.map(function(s){ return '<span><i style="background:' + s[2] + '"></i>' + s[1] + '</span>'; }).join("") +
+      '<span>' + icon("good").replace('<svg', '<svg style="width:12px;height:12px"') + 'Lost: none</span></div>';
+    if (S.table.hours){
+      host.innerHTML = '<div class="tbl" style="margin-top:12px"><table><thead><tr><th>Hour</th><th class="r">Received</th><th class="r">Stored</th><th class="r">Waiting</th><th class="r">Lost</th></tr></thead><tbody>' +
+        data.map(function(d){ return '<tr><td>' + d.h + (d.partial ? ' <span class="small">to 14:10</span>' : '') + '</td><td class="r num">' + d.total + '</td><td class="r num">' + d.stored + '</td><td class="r num">' + d.waiting + '</td><td class="r num">0</td></tr>'; }).join("") +
+        '</tbody></table></div>'; return;
+    }
+    host.innerHTML = legend + '<div class="plot"><svg role="img" aria-label="Calls received each hour today, stored and waiting"></svg></div>';
+    var svg = host.querySelector(".plot svg"), w = host.clientWidth || 480;
+    var left = 30, right = 8, top = 20, ph = 170, bottom = 24, h = top + ph + bottom, pw = w - left - right;
+    var max = Math.max.apply(null, data.map(function(d){ return d.total; }));
+    var step = max > 20 ? 10 : 5, ymax = Math.ceil(max/step)*step;
+    var Y = function(v){ return top + ph - v/ymax*ph; };
+    var band = pw / data.length, bw = Math.min(24, band*.55), s = '';
+    for (var v = 0; v <= ymax; v += step) s += '<line x1="' + left + '" x2="' + (w-right) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + (v ? "var(--grid)" : "var(--axis)") + '"/>' +
+      '<text x="' + (left-8) + '" y="' + (Y(v)+4) + '" text-anchor="end" class="num">' + v + '</text>';
+    data.forEach(function(d, i){
+      var cx = left + band*i + band/2, x = cx - bw/2, y = Y(0);
+      HSER.forEach(function(sr, k){
+        var val = d[sr[0]]; if (!val) return;
+        var hh = val/ymax*ph, y1 = y - hh, y2 = y - (k ? 2 : 0);
+        var isTop = k === HSER.length - 1 || !d[HSER[k+1][0]];
+        if (isTop){ var r = Math.min(4, (y2-y1)/2);
+          s += '<path class="col c' + i + '" d="M' + x + ' ' + y2 + 'V' + (y1+r) + 'Q' + x + ' ' + y1 + ' ' + (x+r) + ' ' + y1 + 'H' + (x+bw-r) + 'Q' + (x+bw) + ' ' + y1 + ' ' + (x+bw) + ' ' + (y1+r) + 'V' + y2 + 'Z" fill="' + sr[2] + '"/>';
+        } else s += '<rect class="col c' + i + '" x="' + x + '" y="' + y1 + '" width="' + bw + '" height="' + (y2-y1) + '" fill="' + sr[2] + '"/>';
+        y = y1;
+      });
+      s += '<text x="' + cx + '" y="' + (top+ph+17) + '" text-anchor="middle">' + d.h.slice(0,2) + '</text>';
+      if (d.waiting) s += '<text class="v num" x="' + cx + '" y="' + (Y(d.total)-7) + '" text-anchor="middle">' + d.waiting + ' waiting</text>';
+      s += '<rect class="hit" data-i="' + i + '" x="' + (left+band*i) + '" y="' + top + '" width="' + band + '" height="' + ph + '" tabindex="0" aria-label="' + d.h + ', ' + d.total + ' calls"/>';
+    });
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h); svg.style.height = h + "px"; svg.innerHTML = s;
+    bindHits(svg, function(i){ var d = data[i];
+      return { title:d.h + (d.partial ? " to 14:10" : " to " + (+d.h.slice(0,2)+1) + ":00"),
+        rows:[{ value:String(d.waiting), label:"waiting to download", color:"var(--warn)" },{ value:String(d.stored), label:"stored", color:"var(--s1)" },{ value:String(d.total), label:"received" }] }; }, true);
+  }
+
+  /* ---- chart: time to summary, p50 and p95 lines ---- */
+  var LSER = [["p95","Slowest 5%","var(--s2)"],["p50","Median","var(--s1)"]];
+  function ttsData(){
+    return DAYS.map(function(day, i){
+      var fs = sel(), p50 = 0, p95 = 0;
+      fs.forEach(function(f){ p50 += f.tts[i].p50; p95 = Math.max(p95, f.tts[i].p95); });
+      return { d:day, p50:p50/fs.length, p95:p95 };
+    });
+  }
+  function drawTts(){
+    var host = $("tts"), data = ttsData();
+    var legend = '<div class="legend">' + LSER.map(function(s){ return '<span><i class="ln" style="background:' + s[2] + '"></i>' + s[1] + '</span>'; }).join("") + '</div>';
+    if (S.table.tts){
+      host.innerHTML = '<div class="tbl" style="margin-top:12px"><table><thead><tr><th>Day</th><th class="r">Median</th><th class="r">Slowest 5%</th></tr></thead><tbody>' +
+        data.map(function(d){ return '<tr><td>' + dl(d.d) + '</td><td class="r num">' + d.p50.toFixed(1) + ' min</td><td class="r num">' + d.p95.toFixed(1) + ' min</td></tr>'; }).join("") +
+        '</tbody></table></div>'; return;
+    }
+    host.innerHTML = legend + '<div class="plot"><svg role="img" aria-label="Minutes from call end to summary, daily"></svg></div>';
+    var svg = host.querySelector(".plot svg"), w = host.clientWidth || 480;
+    var left = 30, right = 64, top = 20, ph = 170, bottom = 24, h = top + ph + bottom, pw = w - left - right;
+    var ymax = Math.ceil(Math.max.apply(null, data.map(function(d){ return d.p95; })) / 10) * 10;
+    var Y = function(v){ return top + ph - v/ymax*ph; }, n = data.length;
+    var X = function(i){ return left + i*pw/(n-1); };
+    var s = '';
+    for (var v = 0; v <= ymax; v += 10) s += '<line x1="' + left + '" x2="' + (left+pw) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + (v ? "var(--grid)" : "var(--axis)") + '"/>' +
+      '<text x="' + (left-8) + '" y="' + (Y(v)+4) + '" text-anchor="end" class="num">' + v + '</text>';
+    s += '<line x1="' + left + '" x2="' + (left+pw) + '" y1="' + Y(20) + '" y2="' + Y(20) + '" stroke="var(--ink2)" stroke-width="1"/>' +
+      '<text x="' + (left+pw) + '" y="' + (Y(20)-5) + '" text-anchor="end" style="fill:var(--ink2)">P2 at 20 min</text>';
+    data.forEach(function(d, i){ if (i % 3 === 1 || i === n-1) s += '<text x="' + X(i) + '" y="' + (top+ph+17) + '" text-anchor="middle">' + (i === n-1 ? "Today" : dl(d.d)) + '</text>'; });
+    LSER.forEach(function(sr){
+      var path = data.map(function(d, i){ return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(d[sr[0]]).toFixed(1); }).join(" ");
+      s += '<path d="' + path + '" fill="none" stroke="' + sr[2] + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      var last = data[n-1];
+      s += '<circle cx="' + X(n-1) + '" cy="' + Y(last[sr[0]]) + '" r="4.5" fill="' + sr[2] + '" stroke="var(--card)" stroke-width="2"/>';
+      s += '<text class="v num" x="' + (X(n-1)+10) + '" y="' + (Y(last[sr[0]])+4) + '">' + last[sr[0]].toFixed(1) + '</text>';
+    });
+    var inc = data[5];
+    s += '<text x="' + X(5) + '" y="' + (Y(inc.p95)-10) + '" text-anchor="middle" style="fill:var(--ink2)">Transcription outage</text>';
+    s += '<line class="xh" x1="0" x2="0" y1="' + top + '" y2="' + (top+ph) + '" stroke="var(--axis)" visibility="hidden"/>';
+    s += '<rect class="hit" x="' + left + '" y="' + top + '" width="' + pw + '" height="' + ph + '" tabindex="0" aria-label="Show daily values"/>';
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h); svg.style.height = h + "px"; svg.innerHTML = s;
+    var hit = svg.querySelector(".hit"), xh = svg.querySelector(".xh");
+    function at(i){ var d = data[i]; xh.setAttribute("x1", X(i)); xh.setAttribute("x2", X(i)); xh.setAttribute("visibility","visible");
+      var r = svg.getBoundingClientRect();
+      showTip(r.left + X(i)*(r.width/w), r.top + top*(r.height/h), i === n-1 ? "Today, so far" : dl(d.d),
+        [{ value:d.p95.toFixed(1) + " min", label:"slowest 5%", color:"var(--s2)" },{ value:d.p50.toFixed(1) + " min", label:"median", color:"var(--s1)" }]); }
+    hit.addEventListener("pointermove", function(e){ var r = svg.getBoundingClientRect(), x = (e.clientX - r.left)*(w/r.width);
+      at(Math.max(0, Math.min(n-1, Math.round((x-left)/(pw/(n-1)))))); });
+    hit.addEventListener("pointerleave", function(){ xh.setAttribute("visibility","hidden"); hideTip(); });
+    hit.addEventListener("focus", function(){ at(n-1); });
+    hit.addEventListener("blur", function(){ xh.setAttribute("visibility","hidden"); hideTip(); });
+  }
+
+  function bindHits(svg, info, lift){
+    Array.prototype.forEach.call(svg.querySelectorAll(".hit[data-i]"), function(el){
+      var i = +el.getAttribute("data-i"), o = info(i);
+      function l(on){ if (!lift) return; Array.prototype.forEach.call(svg.querySelectorAll(".col"), function(p){ p.style.opacity = on && !p.classList.contains("c" + i) ? ".45" : ""; }); }
+      el.addEventListener("pointermove", function(e){ l(true); showTip(e.clientX, e.clientY, o.title, o.rows); });
+      el.addEventListener("pointerleave", function(){ l(false); hideTip(); });
+      el.addEventListener("focus", function(){ l(true); var r = el.getBoundingClientRect(); showTip(r.left + r.width/2, r.top, o.title, o.rows); });
+      el.addEventListener("blur", function(){ l(false); hideTip(); });
+    });
+  }
+
+  function renderFirms(){
+    $("firms").innerHTML = '<table><thead><tr><th>Firm</th><th>Status</th><th class="r">Matter lines</th><th class="r">Calls today</th><th class="r">Waiting</th>' +
+      '<th class="r">Emails today</th><th class="r">Unrouted</th><th class="r">Mono, 7 days</th><th>Fee earners active this week</th><th>Last capture</th></tr></thead><tbody>' +
+      FIRMS.map(function(f){
+        var st = f.status === "warn" ? chip("warn","Downloads delayed") : chip("good","Healthy");
+        return '<tr tabindex="0" data-firm-row="' + f.id + '" style="cursor:pointer"' + (S.firm === f.id ? ' class="sel"' : '') + '><td><b style="font-weight:500">' + f.name + '</b></td><td>' + st + '</td>' +
+          '<td class="r num">' + f.lines + '</td><td class="r num">' + sum(f.calls) + '</td><td class="r num">' + sum(f.waiting) + '</td>' +
+          '<td class="r num">' + f.emails + '</td><td class="r num">' + f.unrouted + '</td><td class="r num">' + f.mono7 + '</td>' +
+          '<td>' + (f.activeOk ? f.active : chip("warn", f.active + " · 2 have routed no calls")) + '</td><td class="small">' + f.last + '</td></tr>'; }).join("") +
+      '</tbody></table>';
+  }
+
+  function renderLog(){
+    var rows = LOG.filter(function(r){ return S.firm === "all" || r[4] === S.firm || r[4] === "all"; });
+    var lab = { nw:"Ashworth Bell", mid:"Hallam Read", ldn:"Penrose Kaye", all:"All firms" };
+    $("logNote").textContent = rows.length + " events";
+    $("log").innerHTML = rows.map(function(r){
+      return '<div class="ev"><span class="t">' + r[0] + '</span>' + icon(r[1]) + '<div><h3>' + esc(r[2]) + '</h3><p>' + esc(r[3]) + '</p></div><span class="firm">' + lab[r[4]] + '</span></div>'; }).join("");
+  }
+  function renderProviders(){
+    $("providers").innerHTML = PROVIDERS.map(function(p){
+      return '<div class="prov"><div>' + p[0] + '<span class="m">' + p[1] + '</span></div>' + chip(p[2], p[3]) + '<span class="lat">' + p[4] + '</span></div>'; }).join("");
+  }
+
+  function renderScoped(){ renderSeg(); renderTiles(); drawHours(); drawTts(); renderFirms(); renderLog(); }
+
+  document.addEventListener("click", function(e){
+    var t = e.target;
+    var f = t.closest("[data-firm]"); if (f){ S.firm = f.dataset.firm; renderScoped(); return; }
+    var r = t.closest("[data-firm-row]"); if (r){ S.firm = S.firm === r.dataset.firmRow ? "all" : r.dataset.firmRow; renderScoped(); return; }
+    var v = t.closest("[data-table]"); if (v){ var k = v.dataset.table; S.table[k] = !S.table[k];
+      v.setAttribute("aria-pressed", String(S.table[k])); v.textContent = S.table[k] ? "Chart" : "Table";
+      if (k === "hours") drawHours(); else drawTts(); }
+  });
+  document.addEventListener("keydown", function(e){
+    if ((e.key === "Enter" || e.key === " ") && e.target.closest && e.target.closest("[data-firm-row]")){ e.preventDefault(); e.target.closest("[data-firm-row]").click(); }
+  });
+  var rt; addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(function(){ drawHours(); drawTts(); }, 120); });
+
+  renderProviders(); renderScoped();
+})();
+</script>
+
+</body></html>

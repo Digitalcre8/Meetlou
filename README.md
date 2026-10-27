@@ -1,6 +1,9 @@
 # Meet Lou website
 
-The public marketing site for Meet Lou: one self-contained page in `site/index.html` (styles, scripts and images inlined; fonts from Google Fonts).
+The Meet Lou website and its interactive demo pages.
+
+- `site/index.html` is the marketing site: one self-contained page (styles, scripts and images inlined; fonts from Google Fonts).
+- `site/demo/` holds the demo pages, each self-contained, with fictional firms and example data: firm dashboard, client app, results report, complaint workspace, staff access log, pilot console and capture health. `site/demo/index.html` lists them. They link to each other with site-relative paths, so they work on any domain.
 
 Netlify deploys the `site/` folder on every push to `main`. There is no build step.
 
@@ -10,4 +13,4 @@ Netlify deploys the `site/` folder on every push to `main`. There is no build st
 - Remove the `noindex` meta tag in `site/index.html` and the `X-Robots-Tag` header in `netlify.toml`.
 - Turn off the Netlify password and point meetlou.app at the site.
 
-The product demo pages (client app, firm dashboard, results report and so on) are deliberately not in this repo.
+Every demo page carries a `noindex` tag and a banner saying the data is fictional. Keep it that way: this repo is public, so never put real firm or client data in it.

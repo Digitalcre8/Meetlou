@@ -1,0 +1,387 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Lou Results Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="robots" content="noindex, nofollow">
+</head><body>
+<style>
+  /* Layout: a monthly letter to the partners. One hero figure, the four promised numbers, then the
+     working that gets you there, in the Lou app's own paper, serif and mono. */
+  :root{
+    --paper:#FAF8F4; --card:#FFFFFF; --panel:#F2EEE7; --ink:#1A1A18; --ink2:#4A463F; --muted:#6E695F;
+    --rule:#E2DCD2; --grid:#ECE7DF; --accent:#C4562A; --series:#C4562A; --good:#2F7A3A; --warn:#B7791F;
+    --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#141310; --card:#1E1C18; --panel:#24221D; --ink:#F6F3ED; --ink2:#C9C3B8; --muted:#948D7F;
+      --rule:#2E2C26; --grid:#2A2823; --accent:#E0714A; --series:#DB6A40; --good:#7FBF86; --warn:#E3B04B;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#141310; --card:#1E1C18; --panel:#24221D; --ink:#F6F3ED; --ink2:#C9C3B8; --muted:#948D7F;
+    --rule:#2E2C26; --grid:#2A2823; --accent:#E0714A; --series:#DB6A40; --good:#7FBF86; --warn:#E3B04B;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .demo{background:var(--ink);color:var(--paper);text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding-block:7px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .wrap{max-width:1080px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:36px 72px}
+  .mono{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;margin:0;text-wrap:balance}
+  h1{font-size:clamp(40px,6vw,64px);line-height:1}
+  h2{font-size:clamp(28px,3.4vw,36px);line-height:1.05}
+  p{margin:0}
+  .muted{color:var(--muted)} .ink2{color:var(--ink2)}
+  button{font:inherit;color:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  header.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 24px}
+  header.top .sub{margin-top:10px;color:var(--ink2)}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:500;min-height:40px}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+  .btn.ghost:hover{background:var(--panel)}
+
+  section{margin-top:44px}
+  .h2row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:22px 24px}
+  @media (max-width:560px){.card{padding:18px 16px}}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;margin-top:30px;align-items:stretch}
+  @media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)}}
+  .heronum{font-family:var(--sans);font-weight:600;font-size:clamp(64px,10vw,104px);line-height:.95;letter-spacing:-.035em;margin-top:10px}
+  .heronum small{font-size:.32em;font-weight:500;letter-spacing:-.01em;margin-left:8px;color:var(--ink2)}
+  .herotext{margin-top:12px;font-size:17px;color:var(--ink2);max-width:30em}
+  .herotext b{color:var(--ink);font-weight:600}
+  .cap{display:grid;gap:0;background:var(--panel);border-radius:16px;padding:8px 22px}
+  .cap div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;padding:14px 0;border-top:1px solid color-mix(in srgb,var(--ink) 9%,transparent);align-items:baseline}
+  .cap div:first-child{border-top:0}
+  .cap span{color:var(--ink2);font-size:14.5px}
+  .cap b{font-weight:600;font-size:20px;letter-spacing:-.01em}
+
+  /* four numbers */
+  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  @media (max-width:900px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:460px){.tiles{grid-template-columns:minmax(0,1fr)}}
+  .tile{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+  .tile .lbl{font-size:13.5px;color:var(--ink2);font-weight:500}
+  .tile .val{font-weight:600;font-size:34px;letter-spacing:-.02em;line-height:1.05;margin-top:4px}
+  .tile .val small{font-size:15px;font-weight:500;color:var(--ink2);margin-left:3px;letter-spacing:0}
+  .delta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--good)}
+  .delta svg{width:14px;height:14px;flex:none}
+  .tile .base{font-size:12.5px;color:var(--muted);margin-top:auto;padding-top:8px;border-top:1px solid var(--rule)}
+  .spark{display:block;width:100%;height:30px;margin-top:4px}
+
+  /* chart */
+  .seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:2px;background:var(--card)}
+  .seg button{border:0;background:none;border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--ink2)}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+  .chartbox{position:relative}
+  #chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.35;
+    white-space:nowrap;transform:translate(-50%,-110%);box-shadow:0 8px 20px rgba(0,0,0,.18)}
+  .tip b{font-weight:600}
+  .chartnote{margin-top:12px;font-size:13.5px;color:var(--ink2)}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th{font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 12px 9px 0;border-bottom:1px solid var(--rule)}
+  td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:0}
+  tfoot td{border-top:1px solid var(--ink);border-bottom:0;font-weight:600}
+  .scroll{overflow-x:auto}
+  .scroll table{min-width:620px}
+
+  /* hours */
+  .hrs{display:grid;gap:14px;margin-top:4px}
+  .hr{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) 64px;gap:14px;align-items:center}
+  @media (max-width:640px){.hr{grid-template-columns:minmax(0,1fr) 56px}.hr .bar{grid-column:1 / -1;grid-row:2}}
+  .hr b{display:block;font-weight:500;font-size:14.5px}
+  .hr em{display:block;font-style:normal;font-size:12.5px;color:var(--muted);margin-top:1px}
+  .bar{height:14px;background:var(--grid);border-radius:0 4px 4px 0;position:relative}
+  .bar i{position:absolute;inset:0 auto 0 0;background:var(--series);border-radius:0 4px 4px 0;display:block}
+  .hr .v{text-align:right;font-weight:600;font-size:15px}
+  .hrtotal{display:flex;justify-content:space-between;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--ink);font-weight:600}
+
+  /* clients */
+  .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  @media (max-width:760px){.three{grid-template-columns:minmax(0,1fr)}}
+  .three .tile .val{font-size:30px}
+
+  .flag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--warn);margin-top:3px}
+  .flag svg{width:13px;height:13px;flex:none}
+  .who b{font-weight:500;display:block}
+
+  .look{display:grid;gap:0}
+  .lk{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;padding:14px 0;border-top:1px solid var(--rule)}
+  .lk:first-child{border-top:0;padding-top:4px}
+  .lk svg{width:18px;height:18px;margin-top:2px}
+  .lk b{font-weight:600;display:block}
+  .lk span{color:var(--ink2);font-size:14.5px}
+
+  .method{margin-top:44px;padding-top:20px;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 40px}
+  @media (max-width:760px){.method{grid-template-columns:minmax(0,1fr)}}
+  .method p{font-size:13.5px;color:var(--ink2);margin-top:6px}
+  .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);
+    padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:20}
+  textarea.copyfall{width:100%;min-height:200px;margin-top:12px;font-family:var(--mono);font-size:12px;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:10px}
+</style>
+
+<div class="demo">Illustration · demo firm · not real client data</div>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="mono">Calder &amp; Lowe · results for the partners</span>
+      <h1 style="margin-top:10px">September 2026</h1>
+      <p class="sub">Compared with the four weeks before Lou went live. Prepared 1 October 2026.</p>
+    </div>
+    <div class="acts"><button class="btn" id="copyBtn" type="button">Copy as email</button></div>
+  </header>
+  <div id="copyFallback" hidden><textarea class="copyfall" id="copyText" aria-label="Report summary to copy" readonly></textarea></div>
+
+  <div class="hero">
+    <div class="card">
+      <span class="mono">Time returned to the team</span>
+      <div class="heronum" id="heroNum">39<small>hours</small></div>
+      <p class="herotext">In September, Lou gave your four fee earners back <b id="heroFte">about a quarter of a fee earner</b>. At your current caseload that's room for <b id="heroMatters">around 4 more live matters</b> without hiring.</p>
+    </div>
+    <div class="cap" aria-label="Capacity in September">
+      <div><span>Active matters</span><b>61</b></div>
+      <div><span>Fee earners</span><b>4</b></div>
+      <div><span>Calls recorded and summarised</span><b>312</b></div>
+      <div><span>Emails filed to the right matter</span><b>418</b></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="h2row"><h2>The four numbers we agreed to move</h2><span class="mono">September vs baseline</span></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section>
+    <div class="h2row">
+      <div><h2>Repeat status calls each week</h2><p class="muted" style="margin-top:6px;font-size:14px">Clients ringing for something already on the file. Whole firm, last 13 weeks.</p></div>
+      <div class="seg" role="group" aria-label="Show as"><button type="button" aria-pressed="true" data-show="chart">Chart</button><button type="button" aria-pressed="false" data-show="table">Table</button></div>
+    </div>
+    <div class="card">
+      <div class="chartbox"><div id="chart" role="img" aria-label="Line chart of repeat status calls per week, falling from 47 in early July to 36 at the end of September, against a baseline of 58"></div><div class="tip" id="tip" hidden></div></div>
+      <div id="chartTable" hidden class="scroll"><table><thead><tr><th>Week starting</th><th class="n">Repeat status calls</th><th class="n">vs baseline (58)</th></tr></thead><tbody id="ctBody"></tbody></table></div>
+      <p class="chartnote">Down from 58 a week before Lou to 36 in September. The fall has been steady since go-live, as more clients started using the app.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="h2row"><h2>Where the hours came from</h2><span class="mono">September · how each is worked out</span></div>
+    <div class="card">
+      <div class="hrs" id="hrs"></div>
+      <div class="hrtotal"><span>Total time returned</span><span id="hrsTotal"></span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="h2row"><h2>The client's side</h2><span class="mono">Why the calls dropped</span></div>
+    <div class="three">
+      <div class="tile"><span class="lbl">Clients using the app</span><div class="val">54 <small>of 61</small></div><span class="base">89% of active matters</span></div>
+      <div class="tile"><span class="lbl">Summaries read within a day</span><div class="val">91%</div><span class="base">Of 312 approved summaries</span></div>
+      <div class="tile"><span class="lbl">Agents with access</span><div class="val">38 <small>of 61</small></div><span class="base">Agent invites are off on 23 matters</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="h2row"><h2>By fee earner</h2><span class="mono">September</span></div>
+    <div class="card scroll">
+      <table>
+        <thead><tr><th>Fee earner</th><th class="n">Matters</th><th class="n">Calls</th><th class="n">Approved</th><th class="n">Time to approve</th><th class="n">Status calls / week</th></tr></thead>
+        <tbody id="feBody"></tbody>
+        <tfoot><tr><td>Firm</td><td class="n">61</td><td class="n">312</td><td class="n">304</td><td class="n">22 min</td><td class="n">36 <span class="muted" style="font-weight:400">was 58</span></td></tr></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="h2row"><h2>Worth a look this month</h2></div>
+    <div class="card look">
+      <div class="lk"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2 17 16H1z" fill="none" stroke="var(--warn)" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 7v4M9 13.2v.1" stroke="var(--warn)" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <div><b>Tom's summaries wait nearly two hours</b><span>Seven of his September calls still haven't been approved, and the rest took almost two hours on average, so some of those clients rang instead. A short morning slot for approvals would likely close the gap.</span></div></div>
+      <div class="lk"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.5" fill="none" stroke="var(--muted)" stroke-width="1.6"/><path d="M9 5.5v4M9 12.3v.1" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <div><b>Seven clients haven't opened the app</b><span>Their matters account for a third of the remaining status calls. Re-sending the invite from the matter page usually works.</span></div></div>
+      <div class="lk"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.5" fill="none" stroke="var(--muted)" stroke-width="1.6"/><path d="M9 5.5v4M9 12.3v.1" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <div><b>Turn on agent access for the other 23 matters</b><span>Estate agents chasing for updates are the next biggest source of calls. On matters where the agent can see progress, agent calls are down by half.</span></div></div>
+    </div>
+  </section>
+
+  <div class="method">
+    <div><span class="mono">How the baseline was taken</span><p>Four weeks of your own call logs and email before go-live, 16 March to 12 April 2026. Status calls were tagged from the recordings using the same rules each month.</p></div>
+    <div><span class="mono">How the hours are counted</span><p>Each line above is a count from Lou multiplied by a time per item agreed with your practice manager at the start of the pilot. Change the times and the totals change; the counts don't.</p></div>
+    <div><span class="mono">Capacity</span><p>A fee earner is taken as 150 working hours a month. Extra matters are the hours returned divided by your current average time per live matter, about 10 hours a month.</p></div>
+    <div><span class="mono">What isn't counted</span><p>Fewer complaints, better reviews and agent referrals. They matter, but they take longer than a month to show and we won't guess at them.</p></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ---------- data (example firm) ----------
+  var TILES = [
+    { lbl:"Repeat status calls", val:"36", unit:"a week", base:"Baseline 58 a week", delta:"38% fewer", spark:[58,57,55,52,50,47,45,46,43,42,41,40,39,38,37,36,35,36] },
+    { lbl:"Average call length", val:"5.4", unit:"min", base:"Baseline 7.1 min", delta:"24% shorter", spark:[7.1,7.0,6.9,6.7,6.5,6.4,6.2,6.1,6.0,5.9,5.8,5.7,5.6,5.6,5.5,5.4,5.4,5.4] },
+    { lbl:"Time to a note on the file", val:"22", unit:"min", base:"Baseline 2.3 days", delta:"Same day, not days later", spark:[3312,900,300,120,80,60,45,40,35,32,30,28,26,25,24,23,22,22] },
+    { lbl:"Conversations with a record", val:"94", unit:"%", base:"Baseline 22%", delta:"72 points higher", spark:[22,40,61,72,80,84,86,88,89,90,91,92,92,93,93,94,94,94] }
+  ];
+  var WEEKS = [["7 Jul",47],["14 Jul",45],["21 Jul",46],["28 Jul",43],["4 Aug",42],["11 Aug",41],["18 Aug",40],["25 Aug",39],["1 Sep",37],["8 Sep",36],["15 Sep",35],["22 Sep",36],["29 Sep",36]];
+  var BASE = 58;
+  var HOURS = [
+    { what:"Attendance notes drafted for you", how:"312 calls × 3 min saved on each note", n:312, min:3 },
+    { what:"Status calls that didn't happen", how:"94 fewer calls × 7.1 min each", n:94, min:7.1 },
+    { what:"Shorter calls", how:"312 calls × 1.7 min shorter", n:312, min:1.7 },
+    { what:"Email filed for you", how:"418 emails × 0.5 min each", n:418, min:0.5 }
+  ];
+  var FE = [
+    ["Daniel Hughes", 18, 96, 96, "14 min", 9, 15, ""],
+    ["Sophie Lane", 16, 82, 81, "19 min", 9, 14, ""],
+    ["Tom Reyes", 15, 71, 64, "1 h 52 min", 11, 15, "7 still waiting"],
+    ["Aisha Khan", 12, 63, 63, "25 min", 7, 14, ""]
+  ];
+  var HOURS_PER_FTE = 150, HOURS_PER_MATTER = 10;
+
+  var downIcon = '<svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.3 7.2 6.2 9l3.5-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var warnIcon = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1.5 13 12.5H1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 5.5v3M7 10.3v.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  // ---------- hours (one source of truth for hero + table) ----------
+  var rows = HOURS.map(function(h){ return Object.assign({}, h, { hrs: h.n * h.min / 60 }); });
+  var total = rows.reduce(function(a, r){ return a + r.hrs; }, 0);
+  var totalR = Math.round(total);
+  var fte = total / HOURS_PER_FTE, extra = Math.round(total / HOURS_PER_MATTER);
+  document.getElementById("heroNum").innerHTML = totalR + "<small>hours</small>";
+  document.getElementById("heroFte").textContent = fte >= 0.23 && fte < 0.3 ? "about a quarter of a fee earner" : (Math.round(fte*100)/100) + " of a fee earner";
+  document.getElementById("heroMatters").textContent = "around " + extra + " more live matters";
+  var maxH = Math.max.apply(null, rows.map(function(r){ return r.hrs; }));
+  document.getElementById("hrs").innerHTML = rows.map(function(r){
+    return '<div class="hr"><div><b>' + esc(r.what) + '</b><em>' + esc(r.how) + '</em></div>' +
+      '<div class="bar" aria-hidden="true"><i style="width:' + (r.hrs / maxH * 100).toFixed(1) + '%"></i></div>' +
+      '<div class="v">' + r.hrs.toFixed(1) + ' h</div></div>';
+  }).join("");
+  document.getElementById("hrsTotal").textContent = total.toFixed(1) + " h";
+
+  // ---------- tiles ----------
+  function spark(vals){
+    var w = 200, h = 30, lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals), n = vals.length;
+    var pts = vals.map(function(v, i){ return [i/(n-1)*(w-6)+3, h-4-(v-lo)/((hi-lo)||1)*(h-8)]; });
+    var d = pts.map(function(p, i){ return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join("");
+    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true"><path d="' + d + '" fill="none" stroke="var(--muted)" stroke-width="1.5" vector-effect="non-scaling-stroke" opacity=".6"/>' +
+      '</svg>';
+  }
+  document.getElementById("tiles").innerHTML = TILES.map(function(t){
+    return '<div class="tile"><span class="lbl">' + esc(t.lbl) + '</span><div class="val">' + esc(t.val) + '<small>' + esc(t.unit) + '</small></div>' +
+      '<span class="delta">' + downIcon + 'Better · ' + esc(t.delta) + '</span>' + spark(t.spark) + '<span class="base">' + esc(t.base) + '</span></div>';
+  }).join("");
+
+  // ---------- fee earner table ----------
+  document.getElementById("feBody").innerHTML = FE.map(function(r){
+    return '<tr><td class="who"><b>' + esc(r[0]) + '</b>' + (r[7] ? '<span class="flag">' + warnIcon + esc(r[7]) + '</span>' : '') + '</td>' +
+      '<td class="n">' + r[1] + '</td><td class="n">' + r[2] + '</td><td class="n">' + r[3] + '</td><td class="n">' + esc(r[4]) + '</td>' +
+      '<td class="n">' + r[5] + ' <span class="muted">was ' + r[6] + '</span></td></tr>';
+  }).join("");
+
+  // ---------- chart table twin ----------
+  document.getElementById("ctBody").innerHTML = WEEKS.map(function(w){
+    return '<tr><td>' + w[0] + '</td><td class="n">' + w[1] + '</td><td class="n">' + (w[1] - BASE) + '</td></tr>';
+  }).join("");
+
+  // ---------- line chart ----------
+  var host = document.getElementById("chart"), tip = document.getElementById("tip");
+  var pts = [];
+  function draw(){
+    var W = Math.max(280, host.clientWidth || 600), H = W < 520 ? 230 : 280;
+    var m = { l: 34, r: 44, t: 18, b: 28 };
+    var iw = W - m.l - m.r, ih = H - m.t - m.b, ymax = 70, n = WEEKS.length;
+    function x(i){ return m.l + i / (n - 1) * iw; }
+    function y(v){ return m.t + (1 - v / ymax) * ih; }
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">';
+    [0, 20, 40, 60].forEach(function(t){
+      s += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="var(--grid)" stroke-width="1"/>';
+      s += '<text x="' + (m.l - 8) + '" y="' + (y(t) + 4) + '" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--sans)" style="font-variant-numeric:tabular-nums">' + t + '</text>';
+    });
+    var step = W < 520 ? 4 : 2;
+    WEEKS.forEach(function(w, i){
+      if (i % step === 0 || i === n - 1) s += '<text x="' + x(i) + '" y="' + (H - 8) + '" text-anchor="' + (i === n - 1 ? "end" : "middle") + '" font-size="11" fill="var(--muted)" font-family="var(--sans)">' + w[0] + '</text>';
+    });
+    // baseline reference
+    s += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(BASE) + '" y2="' + y(BASE) + '" stroke="var(--ink2)" stroke-width="1" opacity=".55"/>';
+    s += '<text x="' + (m.l + 6) + '" y="' + (y(BASE) - 7) + '" font-size="11.5" fill="var(--ink2)" font-family="var(--sans)">Before Lou: 58 a week</text>';
+    // area + line
+    var d = WEEKS.map(function(w, i){ return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(w[1]).toFixed(1); }).join("");
+    s += '<path d="' + d + 'L' + x(n - 1) + ' ' + y(0) + 'L' + x(0) + ' ' + y(0) + 'Z" fill="var(--series)" opacity=".1"/>';
+    s += '<path d="' + d + '" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    var lx = x(n - 1), ly = y(WEEKS[n - 1][1]);
+    s += '<circle cx="' + lx + '" cy="' + ly + '" r="5" fill="var(--series)" stroke="var(--card)" stroke-width="2"/>';
+    s += '<text x="' + (lx + 9) + '" y="' + (ly + 4) + '" font-size="12.5" font-weight="600" fill="var(--ink)" font-family="var(--sans)">' + WEEKS[n - 1][1] + '</text>';
+    s += '<line id="xh" x1="0" x2="0" y1="' + m.t + '" y2="' + (H - m.b) + '" stroke="var(--muted)" stroke-width="1" opacity="0"/>';
+    s += '<circle id="xd" r="5" fill="var(--series)" stroke="var(--card)" stroke-width="2" opacity="0"/>';
+    s += '<rect x="' + m.l + '" y="' + m.t + '" width="' + iw + '" height="' + ih + '" fill="transparent" id="hit"/>';
+    s += '</svg>';
+    host.innerHTML = s;
+    pts = WEEKS.map(function(w, i){ return { x: x(i), y: y(w[1]), w: w }; });
+    var svg = host.querySelector("svg"), xh = svg.querySelector("#xh"), xd = svg.querySelector("#xd"), hit = svg.querySelector("#hit");
+    function move(ev){
+      var r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * (W / r.width);
+      var best = pts.reduce(function(a, p){ return Math.abs(p.x - px) < Math.abs(a.x - px) ? p : a; });
+      xh.setAttribute("x1", best.x); xh.setAttribute("x2", best.x); xh.setAttribute("opacity", ".5");
+      xd.setAttribute("cx", best.x); xd.setAttribute("cy", best.y); xd.setAttribute("opacity", "1");
+      tip.hidden = false;
+      tip.innerHTML = "Week of " + best.w[0] + "<br><b>" + best.w[1] + " status calls</b> · " + (BASE - best.w[1]) + " fewer than before Lou";
+      var sx = r.width / W;
+      tip.style.left = Math.min(Math.max(best.x * sx, 90), r.width - 90) + "px";
+      tip.style.top = (best.y * sx) + "px";
+    }
+    function leave(){ tip.hidden = true; xh.setAttribute("opacity", "0"); xd.setAttribute("opacity", "0"); }
+    hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move); hit.addEventListener("pointerleave", leave);
+  }
+  draw();
+  var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(draw, 120); });
+
+  // chart / table toggle
+  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+    b.addEventListener("click", function(){
+      var show = b.getAttribute("data-show");
+      document.querySelectorAll(".seg button").forEach(function(o){ o.setAttribute("aria-pressed", String(o === b)); });
+      document.querySelector(".chartbox").hidden = show !== "chart";
+      document.getElementById("chartTable").hidden = show !== "table";
+      if (show === "chart") draw();
+    });
+  });
+
+  // ---------- copy as email ----------
+  var text = [
+    "Lou results for Calder & Lowe, September 2026",
+    "",
+    "Time returned to the team: " + totalR + " hours (" + (fte >= 0.23 && fte < 0.3 ? "about a quarter of a fee earner" : fte.toFixed(2) + " FTE") + ", room for around " + extra + " more live matters).",
+    "",
+    "Against our four-week baseline:",
+    "- Repeat status calls: 36 a week, down from 58 (38% fewer)",
+    "- Average call length: 5.4 min, down from 7.1 (24% shorter)",
+    "- Time to a note on the file: 22 min, down from 2.3 days",
+    "- Conversations with a record: 94%, up from 22%",
+    "",
+    "Clients: 54 of 61 are using the app, and 91% of summaries were read within a day.",
+    "",
+    "Worth a look: Tom's summaries are waiting nearly two hours to be approved, seven clients haven't opened the app, and agent access is off on 23 matters."
+  ].join("\n");
+  var copyBtn = document.getElementById("copyBtn");
+  function toast(msg){ var t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(function(){ t.remove(); }, 1800); }
+  copyBtn.addEventListener("click", function(){
+    function fallback(){ var box = document.getElementById("copyFallback"), ta = document.getElementById("copyText"); ta.value = text; box.hidden = false; ta.focus(); ta.select(); toast("Selected. Press copy to finish."); }
+    try { navigator.clipboard.writeText(text).then(function(){ toast("Copied. Paste it into an email."); }, fallback); } catch (e) { fallback(); }
+  });
+})();
+</script>
+
+</body></html>
