@@ -60,6 +60,11 @@
   .stages div.on{color:var(--ink2)} .stages div.on::before{background:var(--ink2)}
   .stages div.cur{color:var(--ink);font-weight:500} .stages div.cur::before{background:var(--accent)}
   .stages b{display:block;font-weight:500;color:var(--ink)}
+  @media (max-width:640px){
+    .stages{grid-template-columns:1fr;gap:10px}
+    .stages div{padding:0 0 0 16px}
+    .stages div::before{top:2px;bottom:2px;right:auto;width:4px;height:auto}
+  }
   .clock .big{font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1;margin-top:6px}
   .meter{height:8px;border-radius:4px;background:var(--rule);margin-top:12px;position:relative;overflow:hidden}
   .meter i{position:absolute;left:0;top:0;bottom:0;background:var(--ink2);border-radius:4px;display:block}
@@ -260,8 +265,8 @@
   var ITEMS = [
     ["i01","12 Jun","09:30","Email","Client care pack sent","Read by Nadia · 12 Jun 18:02",3,{}],
     ["i02","20 Jun","11:15","Document","Searches returned: local authority, drainage, environmental","Shared with the clients · read",8,{}],
-    ["i03","16 Jul","14:48","Document","Leasehold management pack (LPE1) from Cedar Court Management","Page 4: roof replacement, consultation under way, estimated £6,500 to £7,000 a flat",12,{linked:true,third:true},
-      'Page 4, planned major works: <mark>“A consultation under section 20 began in June 2026 for replacement of the main roof. The estimated contribution per flat is £6,500 to £7,000.”</mark> The pack also names two other leaseholders, which is why it is marked for redaction.'],
+    ["i03","16 Jul","14:48","Document","Leasehold management pack (LPE1) from Cedar Court Management","Sophie Lane's note: page 4 sets out the roof replacement, estimated £6,500 to £7,000 a flat",12,{linked:true,third:true},
+      'Page 4, planned major works, noted on the file by Sophie Lane on 16 Jul: <mark>“A consultation under section 20 began in June 2026 for replacement of the main roof. The estimated contribution per flat is £6,500 to £7,000.”</mark> The pack also names two other leaseholders, which is why it is marked for redaction.'],
     ["i04","18 Jul","11:02","Call","Call with Nadia Ross: the management pack explained","4 min 51 · consent given at 0:12 · 2 channels",3,{linked:true,call:true},
       'Transcript at 3:12, Sophie Lane, channel 1: <mark>“The management pack says they’ve started consulting on a new roof. Your share is estimated at between six and a half and seven thousand pounds, and it would fall to you after completion.”</mark><br>At 3:41, Nadia Ross, channel 2: “Right. That’s a lot. Can we ask them to knock it off the price?”'],
     ["i05","18 Jul","11:20","Summary","Plain-English summary of the call, approved by Sophie Lane","Major works: roof replacement planned, about £6,500 to £7,000 per flat, payable after completion",1,{linked:true},
@@ -269,7 +274,7 @@
     ["i06","18 Jul","19:42","Receipt","Summary opened by Nadia Ross","Read receipt · client timeline",1,{linked:true}],
     ["i07","19 Jul","08:31","Email","From Paul Ross: “understood about the roof”","To the matter address · SPF and DKIM pass",1,{linked:true},
       '<mark>“Thanks Sophie, understood about the roof.</mark> Can we ask the seller to contribute? If not we’ll need to think about it.”'],
-    ["i08","21 Jul","10:05","Email","To the seller’s solicitors: price reduction or retention for the roof works","Sent from the matter address",1,{linked:true,third:true}],
+    ["i08","21 Jul","10:05","Email","To the seller’s solicitors: price reduction or retention for the roof works","Sent by Sophie Lane, copied to the matter address",1,{linked:true,third:true}],
     ["i09","23 Jul","15:40","Email","From the seller’s solicitors: the seller declines","Names the seller · marked for redaction",1,{linked:true,third:true}],
     ["i10","24 Jul","16:40","Call","Call with Nadia Ross: decision to proceed","3 min 06 · consent given at 0:10 · 2 channels",2,{linked:true,call:true},
       'Transcript at 1:05, Nadia Ross, channel 2: <mark>“We’ve talked about it and we still want to go ahead. We know about the roof.”</mark><br>At 1:19, Sophie Lane: “Understood. I’ll put that in writing for you both today.”'],

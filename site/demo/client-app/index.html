@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <title>Meet Lou Client App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -299,6 +299,16 @@
 
   .srt{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+  /* sentence case for anything you tap or read as a sentence; mono stays for small eyebrows */
+  .role,.tab,.ev .go,.back,.chip,.seen{font-family:var(--sans);text-transform:none;letter-spacing:0}
+  .role{font-size:12px;font-weight:500}
+  .tab{font-size:11px;font-weight:500}
+  .ev .go{font-size:13px;font-weight:500}
+  .back{font-size:14px;font-weight:500}
+  .chip{font-size:12px;font-weight:500}
+  .seen{font-size:12px}
+  @media (min-width:900px){ .tab{font-size:14px} }
 </style>
 
 <div class="stage">
@@ -312,7 +322,7 @@
             <h1>14 Meadow Road</h1>
             <div class="sub">Purchase · chain of 3 · Daniel Hughes</div>
           </div>
-          <div class="chip" id="chip">Exchange 11 Sep</div>
+          <div class="chip" id="chip">Exchange on hold</div>
         </div>
         <div class="roles" role="group" aria-label="Whose view of this matter">
           <button class="role" data-role="client" aria-pressed="true">Sarah · buyer</button>
@@ -340,12 +350,12 @@
             <button class="note" id="demoBtn" style="width:100%;border-color:var(--accent);margin-top:0">
               <p style="color:var(--accent);font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase">Try it · capture a call</p>
               <p style="color:var(--ink);font-weight:500;font-size:13.5px;margin-top:6px">Simulate Sarah calling the matter line</p>
-              <p>Sarah rings the matter line. The call is recorded with consent, transcribes live, and lands here as a summary with the actions pulled out.</p>
+              <p>Sarah rings the matter line. The call is recorded with consent and transcribed when it ends. Once Daniel approves the summary, it lands here with the actions pulled out.</p>
             </button>
             <button class="note" id="mailBtn" style="width:100%;border-color:var(--accent);margin-top:0">
               <p style="color:var(--accent);font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase">Try it · capture an email</p>
               <p style="color:var(--ink);font-weight:500;font-size:13.5px;margin-top:6px">Simulate an email arriving from the surveyor</p>
-              <p>An email sent to this matter's address is checked, matched to the file, read along with its attachment, and added to the timeline and your documents.</p>
+              <p>An email sent to this matter's address is checked, matched to the file and added to the timeline, with its attachment filed to your documents.</p>
             </button>
           </div>
         </section>
@@ -657,7 +667,7 @@
       when:"Just now",
       body:"Dear Ms Whitfield,\n\nPlease find attached the Homebuyer Report (RICS Level 2) for 14 Meadow Road, following our inspection on Tuesday.\n\nTwo items are rated condition 3 and should be addressed before you commit. The rear elevation shows elevated damp readings at low level, consistent with a bridged or failed damp-proof course; we recommend a report from a damp specialist before exchange. The main roof covering is original and nearing the end of its serviceable life — no active leaks were found, but you should budget for recovering within five years.\n\nAll other elements are condition 1 or 2. Your conveyancer is copied.\n\nKind regards,\nAlan Mercer MRICS\nPennine Survey Ltd",
       att:[["Homebuyer-report-14-Meadow-Road.pdf","2.4 MB"]],
-      checks:["Sender verified — SPF and DKIM pass","Matched to 14 Meadow Road","Attachment read and filed to Documents"],
+      checks:["Sender verified — SPF and DKIM pass","Matched to 14 Meadow Road","Attachment filed to Documents"],
       plain:"The survey found two things worth acting on: damp readings at the base of the rear wall, and a roof near the end of its life. Nothing structural, and no active leaks.",
       what:["Get a quote from a damp specialist before exchange.",
             "Budget for re-covering the roof within five years.",
@@ -1065,9 +1075,9 @@
 
     var checks = ["Sender verified — SPF and DKIM pass",
                   "Matched to 14 Meadow Road",
-                  "Attachment read and filed to Documents"];
-    var steps = ["Matching it to a matter…", "Reading the attached report…",
-                 "Pulling out the dates and actions…", "Added to your shared timeline"];
+                  "Attachment filed to Documents"];
+    var steps = ["Matching it to a matter…", "Filing the attachment to Documents…",
+                 "Summary drafted for Daniel to approve…", "Approved by Daniel · added to your timeline"];
     setLive("Email &middot; arriving", "Homebuyer report", "Checking the sender…");
     checks.forEach(function(c, i){
       after(700 + i * 900, function(){
@@ -1138,7 +1148,7 @@
         '<div class="consent" id="consent" hidden><svg viewBox="0 0 24 24" width="10" height="10" ' +
           'fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" ' +
           'stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Consent given at 0:06</div></div>' +
-      '<p class="lbl" style="margin:16px 0 0">Transcribing live</p>' +
+      '<p class="lbl" style="margin:16px 0 0">On the call</p>' +
       '<div class="tlive" id="tlive"></div>' +
       '<button class="endbtn" id="endcall">End call &amp; file to the matter</button>';
     var wave = $("wave");
@@ -1169,7 +1179,7 @@
         $("tlive").appendChild(d);
         $("tlive").scrollTop = $("tlive").scrollHeight;
         setLive("Call &middot; in progress &middot; " + mmss(Math.floor((Date.now()-t0)/1000)),
-                "Call with Daniel Hughes", "Transcribing &middot; " + quote(l[3]));
+                "Call with Daniel Hughes", "Recording &middot; " + quote(l[3]));
       });
     });
     after(1200 + lines.length * 1500 + 600, function(){ if ($("endcall")) $("endcall").click(); });
@@ -1184,7 +1194,7 @@
       '<div class="filing"><div class="lbl" style="color:var(--accent)">Filing to the matter</div>' +
       '<div class="big" id="fstep">Transcribing the recording…</div></div>';
     setLive("Call &middot; ended", "Call with Daniel Hughes", "Transcribing the recording…");
-    var steps = ["Pulling out what was agreed…", "Updating what you need to do…",
+    var steps = ["Drafting a summary for Daniel to approve…", "Daniel approved the summary",
                  "Added to your shared timeline"];
     steps.forEach(function(s, i){
       after(900 + i * 850, function(){

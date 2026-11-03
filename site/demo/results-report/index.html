@@ -137,7 +137,7 @@
 <div class="wrap">
   <header class="top">
     <div>
-      <span class="mono">Calder &amp; Lowe · results for the partners</span>
+      <span class="mono">Ashworth Bell · results for the partners</span>
       <h1 style="margin-top:10px">September 2026</h1>
       <p class="sub">Compared with the four weeks before Lou went live. Prepared 1 October 2026.</p>
     </div>
@@ -208,7 +208,7 @@
     <div class="h2row"><h2>Worth a look this month</h2></div>
     <div class="card look">
       <div class="lk"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2 17 16H1z" fill="none" stroke="var(--warn)" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 7v4M9 13.2v.1" stroke="var(--warn)" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <div><b>Tom's summaries wait nearly two hours</b><span>Seven of his September calls still haven't been approved, and the rest took almost two hours on average, so some of those clients rang instead. A short morning slot for approvals would likely close the gap.</span></div></div>
+        <div><b>Liam's summaries wait nearly two hours</b><span>Seven of his September calls still haven't been approved, and the rest took almost two hours on average, so some of those clients rang instead. A short morning slot for approvals would likely close the gap.</span></div></div>
       <div class="lk"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.5" fill="none" stroke="var(--muted)" stroke-width="1.6"/><path d="M9 5.5v4M9 12.3v.1" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/></svg>
         <div><b>Seven clients haven't opened the app</b><span>Their matters account for a third of the remaining status calls. Re-sending the invite from the matter page usually works.</span></div></div>
       <div class="lk"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.5" fill="none" stroke="var(--muted)" stroke-width="1.6"/><path d="M9 5.5v4M9 12.3v.1" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -243,10 +243,10 @@
     { what:"Email filed for you", how:"418 emails × 0.5 min each", n:418, min:0.5 }
   ];
   var FE = [
-    ["Daniel Hughes", 18, 96, 96, "14 min", 9, 15, ""],
-    ["Sophie Lane", 16, 82, 81, "19 min", 9, 14, ""],
-    ["Tom Reyes", 15, 71, 64, "1 h 52 min", 11, 15, "7 still waiting"],
-    ["Aisha Khan", 12, 63, 63, "25 min", 7, 14, ""]
+    ["Grace Holden", 18, 96, 96, "14 min", 9, 15, ""],
+    ["Marcus Webb", 16, 82, 81, "19 min", 9, 14, ""],
+    ["Liam Carter", 15, 71, 64, "1 h 52 min", 11, 15, "7 still waiting"],
+    ["Priti Shah", 12, 63, 63, "25 min", 7, 14, ""]
   ];
   var HOURS_PER_FTE = 150, HOURS_PER_MATTER = 10;
 
@@ -361,7 +361,7 @@
 
   // ---------- copy as email ----------
   var text = [
-    "Lou results for Calder & Lowe, September 2026",
+    "Lou results for Ashworth Bell, September 2026",
     "",
     "Time returned to the team: " + totalR + " hours (" + (fte >= 0.23 && fte < 0.3 ? "about a quarter of a fee earner" : fte.toFixed(2) + " FTE") + ", room for around " + extra + " more live matters).",
     "",
@@ -373,7 +373,7 @@
     "",
     "Clients: 54 of 61 are using the app, and 91% of summaries were read within a day.",
     "",
-    "Worth a look: Tom's summaries are waiting nearly two hours to be approved, seven clients haven't opened the app, and agent access is off on 23 matters."
+    "Worth a look: Liam's summaries are waiting nearly two hours to be approved, seven clients haven't opened the app, and agent access is off on 23 matters."
   ].join("\n");
   var copyBtn = document.getElementById("copyBtn");
   function toast(msg){ var t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(function(){ t.remove(); }, 1800); }

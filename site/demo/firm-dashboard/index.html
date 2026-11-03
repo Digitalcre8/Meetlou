@@ -12,7 +12,7 @@
   :root{
     --page:#F6F3ED; --card:#FFFDF8; --panel:#F0EBE3; --ink:#1A1A18; --ink2:#4E4A43;
     --muted:#7A746A; --rule:#E4DED4; --accent:#C4562A; --accent-ink:#FFFDF8;
-    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s1-track:#cde2fb; --deemph:#d3d0c7;
+    --s1:#C4562A; --s2:#4A463F; --s3:#8F877A; --s1-track:#F1DDD3; --deemph:#d3d0c7;
     --grid:#ebe7df; --axis:#c3c2b7;
     --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b; --good-text:#006300;
     --scrim:rgba(26,26,24,.28);
@@ -24,7 +24,7 @@
     :root:not([data-theme="light"]){
       --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
       --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --accent-ink:#121110;
-      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s1-track:#0d366b; --deemph:#45423c;
+      --s1:#E0714A; --s2:#D6D0C5; --s3:#8A8376; --s1-track:#4A2E22; --deemph:#45423c;
       --grid:#2a2824; --axis:#3b3934; --good-text:#0ca30c; --scrim:rgba(0,0,0,.5);
       color-scheme:dark;
     }
@@ -32,7 +32,7 @@
   :root[data-theme="dark"]{
     --page:#121110; --card:#1C1A17; --panel:#24221E; --ink:#F4F1EA; --ink2:#C9C3B7;
     --muted:#918A7D; --rule:#302D28; --accent:#E0714A; --accent-ink:#121110;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s1-track:#0d366b; --deemph:#45423c;
+    --s1:#E0714A; --s2:#D6D0C5; --s3:#8A8376; --s1-track:#4A2E22; --deemph:#45423c;
     --grid:#2a2824; --axis:#3b3934; --good-text:#0ca30c; --scrim:rgba(0,0,0,.5);
     color-scheme:dark;
   }
@@ -276,7 +276,7 @@
 
   /* ===== app shell: real navigation, search, and a matter page instead of a drawer ===== */
   .shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:calc(100vh - 26px)}
-  aside.nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:4px;
+  aside.nav{position:sticky;top:0;align-self:start;height:calc(100vh - 26px);overflow-y:auto;display:flex;flex-direction:column;gap:4px;
     padding:18px 12px 16px;background:var(--panel);border-right:1px solid var(--rule)}
   aside.nav .brand{padding:2px 12px 2px}
   aside.nav .firm{padding:4px 12px 18px}
@@ -398,6 +398,32 @@
     .tabbar .badge{min-width:18px;height:18px;font-size:10.5px}
   }
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+  /* 3 Nov revision */
+  .rcol{display:grid;gap:16px;align-content:start}
+  .wrow{display:grid;grid-template-columns:18px minmax(0,1fr) 14px;gap:10px;width:100%;padding:11px 8px;border-radius:10px;align-items:start;text-align:left}
+  .wrow:hover{background:var(--panel)}
+  .wrow > svg{width:16px;height:16px;margin-top:2px}
+  .wrow b{font-weight:600;font-size:13.5px;display:block}
+  .wrow .nd{display:block;font-size:13px;margin-top:1px}
+  .wrow .ctx{display:block;font-size:12.5px;color:var(--ink2);margin-top:3px}
+  .wrow .go{color:var(--muted);padding-top:1px}
+  .addrlink{color:var(--ink);text-decoration:none;font-weight:600}
+  .addrlink:hover{text-decoration:underline}
+  .tag{display:inline-block;margin-left:6px;padding:1px 8px;border:1px solid var(--accent);color:var(--accent);border-radius:999px;font-size:11px;font-weight:500;vertical-align:1px;white-space:nowrap}
+  .upd{font-size:13px;color:var(--ink2)}
+  .upd.stale{color:var(--accent);font-weight:600}
+  .mtag{display:inline-block;margin-left:8px;font-weight:400;vertical-align:1px}
+  .mtag .st{font-size:12px}
+  .standline{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;margin-top:16px;padding:12px 16px;background:var(--card);border:1px solid var(--rule);border-radius:14px;font-size:13.5px}
+  .standline > .st + span{color:var(--ink);margin-left:-12px}
+  .standline .nx{display:flex;align-items:baseline;gap:8px}
+  .standline .nx .eyebrow{margin:0}
+  .viewas .small#whoLine{display:none}
+  .viewas select{width:100%}
+  @media (max-width:640px){
+    .tabbar .navlink{flex-direction:row;gap:6px}
+  }
 </style>
 
 <div class="demobar">Demo firm · example data, not real client files</div>
@@ -409,7 +435,7 @@
     <nav id="navList" aria-label="Sections"></nav>
     <div class="viewas">
       <label for="roleSel" class="eyebrow">Demo · switch person</label>
-      <select id="roleSel"><option value="fee">Daniel Hughes · fee earner</option><option value="colp">Helen Barker · compliance officer &amp; partner</option><option value="pm">James Whitaker · practice manager</option></select>
+      <select id="roleSel"><option value="fee">Daniel · fee earner</option><option value="colp">Helen · compliance officer</option><option value="pm">James · practice manager</option></select>
       <p class="small" id="whoLine"></p>
     </div>
   </aside>
@@ -422,7 +448,7 @@
         <span class="kbd" aria-hidden="true">/</span>
         <div class="qres" id="qres" hidden></div>
       </div>
-      <select id="roleSelM" class="mrole" aria-label="Demo: switch person"><option value="fee">Daniel Hughes · fee earner</option><option value="colp">Helen Barker · compliance officer &amp; partner</option><option value="pm">James Whitaker · practice manager</option></select>
+      <select id="roleSelM" class="mrole" aria-label="Demo: switch person"><option value="fee">Daniel · fee earner</option><option value="colp">Helen · compliance officer</option><option value="pm">James · practice manager</option></select>
     </header>
     <main id="main"></main>
   </div>
@@ -463,7 +489,7 @@
     ["MTR-1001","14 Meadow Road, Sale M33 2QX","Sarah Whitfield","Purchase",2,"Reply due 11 Sep",3,"risk","Exchange blocked until the drainage query is answered"],
     ["MTR-1055","4 Primrose Bank, Timperley WA15","Ben & Chloe Ward","Sale & purchase",2,"Chain update due 9 Sep",2,"risk","Onward purchase at risk — raised from today's call"],
     ["MTR-1012","Flat 6, 22 Brooklands Road, Sale M33","Oliver Grant","Purchase · leasehold",2,"Management pack due 9 Sep",2,"overdue","You owe: leasehold enquiries to the buyer"],
-    ["MTR-1034","12 Beech Avenue, Chorlton M21","Emma Clarke","Sale",2,"Replies sent 2 Sep",2,"overdue","Client owes: TA10 fittings form"],
+    ["MTR-1034","12 Beech Avenue, Chorlton M21","Emma Clarke","Sale",2,"Check the TA10, then replies",2,"overdue","Client owes: TA10 fittings form"],
     ["MTR-1019","8 Rosemary Close, Hale WA15","Laura Byrne","Purchase",3,"Exchange 5 Sep",1,"",""],
     ["MTR-1043","30 Church Road, Urmston M41","Mark & Lisa Doyle","Sale",3,"Exchange 11 Sep",1,"",""],
     ["MTR-1007","3 Ashfield Grove, Altrincham WA14","Mr & Mrs Patel","Sale",3,"Exchange target 12 Sep",1,"",""],
@@ -481,6 +507,13 @@
     next:"Completed 14 Aug", prom:0, flag:"hold", why:"Complaint received 28 Aug", fe:"sl" });
   MATTERS.push({ ref:"MTR-0973", addr:"21 Sycamore Way, Sale M33", client:"Owen Bright", type:"Sale", stage:2,
     next:"Replies due 12 Sep", prom:1, flag:"", why:"", fe:"tr" });
+  /* days since the client last had an update they could read: an approved summary, an update or a shared document */
+  var LAST_UPD = { "MTR-1001":0, "MTR-1055":0, "MTR-1012":3, "MTR-1034":1, "MTR-1019":1, "MTR-1043":2, "MTR-1007":4,
+    "MTR-1015":12, "MTR-1041":5, "MTR-1031":9, "MTR-1049":15, "MTR-1022":6, "MTR-1026":2, "MTR-1052":3, "MTR-1038":8, "MTR-1046":10,
+    "MTR-0988":20, "MTR-0973":4 };
+  var STALE_DAYS = 7;
+  MATTERS.forEach(function(m){ m.upd = LAST_UPD[m.ref] != null ? LAST_UPD[m.ref] : 3; });
+  function updLabel(d){ return d === 0 ? "Today" : d === 1 ? "Yesterday" : d + " days ago"; }
   var byRef = {}; MATTERS.forEach(function(m){ byRef[m.ref] = m; });
 
   /* ---------------- fee earner state ---------------- */
@@ -641,11 +674,20 @@
     h += '<div class="today">';
     h += '<section class="card"><div class="h2row"><h2>To do</h2><span class="note">' + (nA + nO ? (nA + nO) + " left" : "All done") + '</span></div>' +
       todoGroup("Approve before anyone relies on it", approvals()) +
-      todoGroup("Overdue", QUEUE.filter(function(q){ return q.kind === "overdue"; })) +
-      todoGroup("Keep an eye on", QUEUE.filter(function(q){ return q.kind === "risk" || q.kind === "mono"; })) + '</section>';
-    h += newToday();
+      todoGroup("Overdue", QUEUE.filter(function(q){ return q.kind === "overdue"; })) + '</section>';
+    h += '<div class="rcol">' + newToday() + watchCard() + '</div>';
     h += '</div>';
     return h;
+  }
+  function watchCard(){
+    var list = QUEUE.filter(function(q){ return q.kind === "risk" || q.kind === "mono"; });
+    if (!list.length) return "";
+    return '<section class="card"><div class="h2row"><h2>Keep an eye on</h2><span class="note">' + list.length + '</span></div>' +
+      list.map(function(q){ var m = byRef[q.ref], c = TODO_COPY[q.id];
+        return '<button class="wrow" data-open-m="' + q.ref + '">' + icon(q.kind === "risk" ? "serious" : "warn") +
+          '<span><b>' + esc(shortAddr(m)) + '</b><span class="nd">' + esc(c.what) + '</span>' +
+          (c.ctx ? '<span class="ctx">' + esc(c.ctx) + '</span>' : '') + '</span><span class="go" aria-hidden="true">→</span></button>';
+      }).join("") + '</section>';
   }
   function todoGroup(title, list){
     if (!list.length) return "";
@@ -657,11 +699,10 @@
     var acts = "";
     if (q.done) acts = '<span class="okmsg">' + icon("good") + esc(q.doneMsg) + '</span>';
     else if (q.kind === "note" || q.kind === "summary"){ if (!S.open[q.id]) acts = '<button class="btn pri" data-expand="' + q.id + '">' + c.btn + '</button>'; }
-    else if (q.kind === "overdue") acts = '<button class="btn" data-open-m="' + q.ref + '">Open matter</button><button class="btn pri" data-approve="' + q.id + '">Mark done</button>';
-    else acts = '<button class="btn" data-open-m="' + q.ref + '">Open matter</button>';
+    else if (q.kind === "overdue") acts = '<button class="btn pri" data-approve="' + q.id + '">Mark done</button>';
     var h = '<div class="todo' + (q.done ? " done" : "") + '"><div class="row">' + icon(ic) +
-      '<div><div class="addr">' + esc(shortAddr(m)) + ' <span class="who2">· ' + esc(m.client) + '</span></div>' +
-      '<div class="what">' + esc(c.what) + '</div>' + (c.ctx ? '<div class="ctx">' + esc(c.ctx) + '</div>' : '') + '</div>' +
+      '<div><div class="addr"><button class="linkbtn addrlink" data-open-m="' + q.ref + '">' + esc(shortAddr(m)) + '</button> <span class="who2">· ' + esc(m.client) + '</span></div>' +
+      '<div class="what">' + esc(c.what) + (q.kind === "summary" ? ' <span class="tag">Goes to the client</span>' : '') + '</div>' + (c.ctx ? '<div class="ctx">' + esc(c.ctx) + '</div>' : '') + '</div>' +
       '<div class="acts">' + acts + '</div></div>';
     if (!q.done && S.open[q.id] && DRAFTS[q.id]){
       var d = DRAFTS[q.id], editing = !!S.editing[q.id], txt = S.edits[q.id] != null ? S.edits[q.id] : d.text;
@@ -714,22 +755,26 @@
     list.sort(function(a, b){
       if (S.mSort === "address") return shortAddr(a).localeCompare(shortAddr(b));
       if (S.mSort === "stage") return b.stage - a.stage;
+      if (S.mSort === "quiet") return b.upd - a.upd;
       return rank(a) - rank(b) || b.stage - a.stage;
     });
-    var h = '<span class="eyebrow">' + NOW_LABEL + '</span><h1>Your matters</h1><p class="sub">' + all.length + ' active. Find any matter quickly with the search bar at the top.</p>';
+    var quiet = all.filter(function(m){ return m.upd > STALE_DAYS; }).length;
+    var h = '<span class="eyebrow">' + NOW_LABEL + '</span><h1>Your matters</h1><p class="sub">' + all.length + ' active' +
+      (quiet ? '. <b>' + quiet + ' clients</b> haven\'t had an update in over a week.' : '. Every client has had an update this week.') + '</p>';
     h += '<div class="filterrow"><div class="seg" role="group" aria-label="Filter">' + MFILTERS.map(function(f){
         var n = all.filter(function(m){ return matchesFilter(m, f[0]); }).length;
         return '<button data-mf="' + f[0] + '" aria-pressed="' + (S.mFilter === f[0]) + '">' + f[1] + ' · ' + n + '</button>'; }).join("") + '</div>' +
       '<label class="small" for="mSort" style="margin-left:auto">Sort</label><select id="mSort">' +
-      [["urgent","Needs you first"],["stage","Furthest along"],["address","Address"]].map(function(o){
+      [["urgent","Needs you first"],["quiet","Longest without an update"],["stage","Furthest along"],["address","Address"]].map(function(o){
         return '<option value="' + o[0] + '"' + (S.mSort === o[0] ? " selected" : "") + '>' + o[1] + '</option>'; }).join("") + '</select></div>';
-    h += '<div class="card mlist"><div class="mhead"><span>Property</span><span>Stage</span><span>Next</span><span>Needs</span></div>' +
+    h += '<div class="card mlist"><div class="mhead"><span>Property</span><span>Stage</span><span>Next</span><span>Client last updated</span></div>' +
       list.map(function(m){
-        var flag = m.flag === "risk" ? chip("serious", "Risk") : m.flag === "overdue" ? chip("warn", "Overdue promise") : '<span class="small">Nothing</span>';
-        return '<button class="mrow" data-open-m="' + m.ref + '"><span class="mprop"><span class="addr">' + esc(shortAddr(m)) + '</span>' +
+        var flag = m.flag === "risk" ? chip("serious", "Risk") : m.flag === "overdue" ? chip("warn", "Overdue promise") : '';
+        var upd = '<span class="upd' + (m.upd > STALE_DAYS ? ' stale' : '') + '">' + updLabel(m.upd) + '</span>';
+        return '<button class="mrow" data-open-m="' + m.ref + '"><span class="mprop"><span class="addr">' + esc(shortAddr(m)) + (flag ? ' <span class="mtag">' + flag + '</span>' : '') + '</span>' +
           '<span class="small">' + esc(m.client) + ' · ' + esc(m.type) + ' · ' + m.ref + '</span></span>' +
           '<span class="mstage">' + STAGES[m.stage] + '<span class="stagebar" aria-hidden="true">' + [0,1,2,3,4].map(function(i){ return '<i' + (i <= m.stage ? ' class="on"' : '') + '></i>'; }).join("") + '</span></span>' +
-          '<span class="mnext">' + esc(m.next) + '</span><span class="mflag">' + flag + '</span></button>';
+          '<span class="mnext">' + esc(m.next) + '</span><span class="mflag">' + upd + '</span></button>';
       }).join("") + (list.length ? "" : '<p class="small" style="padding:14px 12px">No matters match this filter.</p>') + '</div>';
     return h;
   }
@@ -757,16 +802,16 @@
         var due = p[3] === "late" ? chip("warn", p[2]) : '<span class="small">' + esc(p[2]) + '</span>';
         var act;
         if (st === "done") act = '<span class="okmsg">' + icon("good") + 'Done · on the file</span>';
-        else if (st === "sent") act = '<span class="okmsg">' + icon("good") + 'Sent from the matter address · on the file</span>';
+        else if (st === "sent") act = '<span class="okmsg">' + icon("good") + 'Copied · send it from Outlook</span>';
         else if (key === "you") act = '<button class="btn" data-pdone="' + id + '">Mark done</button>';
         else if (st === "draft") act = "";
-        else act = '<button class="btn" data-pdraft="' + id + '">Send a reminder</button>';
+        else act = '<button class="btn" data-pdraft="' + id + '">Draft a chaser</button>';
         var h = '<div class="prow' + (st === "done" ? " done" : "") + '"><div><b>' + esc(p[0]) + '</b>' +
           '<span class="small" style="display:block;margin-top:2px">' + (m ? '<button class="linkbtn" data-open-m="' + ref + '">' + esc(shortAddr(m)) + '</button> · ' : '') + esc(p[1].replace(/MTR-\d+\s*·?\s*/, "")) + '</span>' +
           '<div style="margin-top:6px">' + due + '</div></div><div class="acts">' + act + '</div></div>';
-        if (st === "draft") h += '<div class="draftbox" style="margin:0 0 12px"><span class="eyebrow">Reminder · you send it, from the matter address</span>' +
+        if (st === "draft") h += '<div class="draftbox" style="margin:0 0 12px"><span class="eyebrow">Chaser · copy it into Outlook · automatic chasing is coming next</span>' +
           '<div class="draft">' + esc(reminderText(key, p)) + '</div><div class="acts" style="justify-content:flex-start;margin-top:12px">' +
-          '<button class="btn pri" data-psend="' + id + '">Send</button><button class="btn" data-pcancel="' + id + '">Cancel</button></div></div>';
+          '<button class="btn pri" data-psend="' + id + '">Copy the text</button><button class="btn" data-pcancel="' + id + '">Close</button></div></div>';
         return h;
       }).join("") + '</section>';
   }
@@ -1111,12 +1156,15 @@
       '<p class="small" style="margin:10px 0 0">Approved by Helen Barker, compliance officer, on 2 Sep 2026.</p></div>';
     h += '</section>';
 
-    h += '<section class="block grid g2e">';
+    var linesCard = '<div class="card"><div class="h2row"><h2>Lines and addresses</h2></div><dl class="kv">' +
+      '<dt>Matter lines</dt><dd>60 active</dd><dt>Number range</dt><dd>0161 496 04xx</dd><dt>Matter addresses</dt><dd>@matters.meetlou.app</dd>' +
+      '<dt>Mail record</dt><dd>' + chip("good","Verified") + '</dd><dt>Sender checks</dt><dd>On every email</dd></dl></div>';
+    h += '<section class="block grid g2e"><div class="grid" style="align-content:start">';
     h += '<div class="card"><div class="h2row"><h2>Retention policy</h2></div>' +
       '<label for="ret" class="small">Keep matter records for</label> ' +
       '<select id="ret" style="margin-left:6px">' + ["6","12","15"].map(function(y){ return '<option value="' + y + '"' + (S.retention === y ? " selected" : "") + '>' + y + ' years after completion</option>'; }).join("") + '</select>' +
       '<div id="retNote">' + (S.retentionPending ? pendingNote() : '') + '</div>' +
-      '<p class="small" style="margin:12px 0 0">Records can\'t be edited inside the retention period, and a matter on legal hold is never deleted however old it is. Deletion only ever happens in the scheduled run.</p></div>';
+      '<p class="small" style="margin:12px 0 0">Records can\'t be edited inside the retention period, and a matter on legal hold is never deleted however old it is. Deletion only ever happens in the scheduled run.</p></div>' + linesCard + '</div>';
     h += '<div class="card"><div class="h2row"><h2>Who sees what</h2><span class="note">Defaults for every new matter</span></div><div class="lines">' +
       [["The client","Everything said to them, approved summaries, and the documents the firm shares"],
        ["Family helping the client","The timeline only, if the client adds them. No documents"],
@@ -1127,16 +1175,13 @@
          return '<div class="line"><div>' + r[0] + '<span class="m">' + r[1] + '</span></div></div>'; }).join("") + '</div></div>';
     h += '</section>';
 
-    h += '<section class="block grid g3">';
-    h += '<div class="card"><div class="h2row"><h2>Lines and addresses</h2></div><dl class="kv">' +
-      '<dt>Matter lines</dt><dd>60 active</dd><dt>Number range</dt><dd>0161 496 04xx</dd><dt>Matter addresses</dt><dd>@matters.meetlou.app</dd>' +
-      '<dt>Mail record</dt><dd>' + chip("good","Verified") + '</dd><dt>Sender checks</dt><dd>On every email</dd></dl></div>';
+    h += '<section class="block grid g2e">';
     h += '<div class="card"><div class="h2row"><h2>Integrations</h2></div><div class="lines">' +
       ["LEAP","Actionstep","Osprey"].map(function(n){ return '<div class="line"><div>' + n + '<span class="m">Case management</span></div><span class="small">Not available yet</span></div>'; }).join("") +
       '</div><p class="small" style="margin:12px 0 0">Integrations ship with the first firm that needs one.</p></div>';
     h += '<div class="card"><div class="h2row"><h2>Security and compliance</h2></div><dl class="kv">' +
       '<dt>Data stored in</dt><dd>London, UK</dd><dt>Data processing agreement</dt><dd>Signed 14 Apr 2026</dd>' +
-      '<dt>ICO registration</dt><dd class="slot">[number]</dd><dt>Sub-processors</dt><dd>Listed in the pack</dd>' +
+      '<dt>Firm\'s ICO registration</dt><dd>Checked at onboarding</dd><dt>Sub-processors</dt><dd>Listed in the pack</dd>' +
       '<dt>Lou staff access to content</dt><dd>Ticketed and logged</dd></dl></div>';
     h += '</section>';
     return h;
@@ -1151,7 +1196,8 @@
   function timelineFor(m){
     if (m.ref === "MTR-1001") return [
       ["Email · today 10:12","Drainage query sent to the seller's solicitors","Firm only","Sent from Daniel's Outlook · captured"],
-      ["Call · today 09:24","Searches back — drainage query raised","Client can see","Approved summary read by Sarah · 09:58"],
+      ["Call · today 09:24","Searches back — drainage query raised","Client can see","Approved summary read by Sarah · 09:58" +
+        (QUEUE[0].done ? " · attendance note approved" : " · attendance note waiting for you")],
       ["Risk flag · today 09:31","Exchange blocked until the drainage query is answered","Firm only",""],
       ["Document · yesterday","Drainage and water search (CON29DW)","Client can see","Read by Sarah · yesterday 18:40"],
       ["Email · 2 days ago","Mortgage offer confirmed — Halifax","Client can see","Read by Sarah and Daniel"],
@@ -1206,19 +1252,26 @@
       '<h1>' + esc(m.addr) + '</h1><p class="sub">' + esc(m.client) + ' · ' + fe.name + '</p>';
     h += '<div class="stepper" style="margin-top:18px;max-width:640px">' + STAGES.map(function(s, i){
       return '<div class="' + (i < m.stage ? "on" : i === m.stage ? "cur" : "") + '">' + s + '</div>'; }).join("") + '</div>';
+    var stand = held ? chip("info", "On legal hold") + '<span>Nothing on this matter can be deleted until the hold is lifted.</span>'
+      : (m.flag === "risk" ? chip("serious", "Risk") + '<span>' + esc(m.why) + '</span>'
+      : m.flag === "overdue" ? chip("warn", "Overdue promise") + '<span>' + esc(m.why.replace(/^You owe: |^Client owes: /, "")) + '</span>' : '');
+    h += '<div class="standline">' + stand + '<span class="nx"><span class="eyebrow">Next</span>' + esc(m.next) + '</span>' +
+      '<span class="nx"><span class="eyebrow">Client last updated</span><span class="upd' + (m.upd > STALE_DAYS ? ' stale' : '') + '">' + updLabel(m.upd) + '</span></span></div>';
     h += '<div class="mpage"><div class="grid" style="align-content:start">';
-    if (m.flag === "risk" || m.flag === "overdue" || held)
-      h += '<div class="card alertcard">' + (held ? chip("info", "On legal hold · retention paused") + '<p>Nothing on this matter can be deleted until the hold is lifted.</p>' :
-        chip(m.flag === "risk" ? "serious" : "warn", m.flag === "risk" ? "Risk flag" : "Overdue promise") + '<p>' + esc(m.why) + '</p>') + '</div>';
-    h += '<section class="card"><div class="h2row"><h2>Shared timeline</h2><span class="note">Newest first</span></div>' +
-      matterEvents(m).map(function(e){
+    var evs = matterEvents(m), tf = S.tlFilter || "all";
+    var kindOf = function(e){ return e[0].split(" · ")[0]; };
+    var shown = evs.filter(function(e){ return tf === "all" || kindOf(e) === tf; });
+    h += '<section class="card"><div class="h2row"><h2>Shared timeline</h2><div class="seg" role="group" aria-label="Show">' +
+      [["all","Everything"],["Call","Calls"],["Email","Emails"],["Document","Documents"]].map(function(f){
+        return '<button data-tlf="' + f[0] + '" aria-pressed="' + (tf === f[0]) + '">' + f[1] + '</button>'; }).join("") + '</div></div>' +
+      (shown.length ? '' : '<p class="small" style="margin:8px 0 0">Nothing of that kind on this matter yet.</p>') +
+      shown.map(function(e){
         var vis = e[2] === "Firm only" ? chip("info", "Firm only") : chip("good", e[2]);
         return '<div class="ev"><div class="meta">' + esc(e[0]) + '</div><h4>' + esc(e[1]) + '</h4><div class="vis">' + vis + (e[3] ? '<span>' + esc(e[3]) + '</span>' : '') + '</div></div>';
       }).join("") + '</section></div>';
     // right rail
     var proms = matterPromises(m.ref);
     h += '<div class="rail">';
-    h += '<section class="card"><div class="h2row"><h2>Next</h2></div><p style="margin:0">' + esc(m.next) + '</p></section>';
     h += '<section class="card"><div class="h2row"><h2>Promises on this matter</h2></div>' + (proms.length ? proms.map(function(x){
         return '<div class="prom"><div><b>' + esc(x[1][0]) + '</b><span class="m">' + x[0] + ' · ' + esc(x[1][2]) + '</span></div></div>'; }).join("")
       : '<p class="small" style="margin:0">Nothing outstanding.</p>') + '</section>';
@@ -1226,7 +1279,7 @@
       '<div class="mono-line">0161 496 04' + ("0" + (+m.ref.slice(4) % 100)).slice(-2) + '</div><div class="mono-line">' + slugFor(m) + '@matters.meetlou.app</div></section>';
     h += '<section class="card"><div class="h2row"><h2>Actions</h2></div><div class="dactions" style="margin-top:0">';
     h += S.bundles[m.ref] ? '<div class="result"><b>Bundle prepared</b> · recordings, transcripts, approved summaries, email, documents, read receipts and the consent log, in date order.</div>'
-                          : '<button class="wide pri" data-bundle="' + m.ref + '">Export evidence bundle</button>';
+                          : '<button class="wide" data-bundle="' + m.ref + '">Export evidence bundle</button>';
     if (S.role === "colp"){
       if (held) h += '<div class="result"><b>On legal hold.</b> Lifting it is recorded in the audit log.</div>';
       else if (S.holdConfirm === m.ref) h += '<div class="result">This pauses retention for every record on the matter.<div style="display:flex;gap:8px;margin-top:10px"><button class="btn pri" data-hold-yes="' + m.ref + '">Place hold</button><button class="btn" data-hold-no="1">Cancel</button></div></div>';
@@ -1293,7 +1346,7 @@
     if (S.role === "colp" && S.page === "supervision") renderColpScoped();
   }
   function go(page){ S.page = page; render(); window.scrollTo(0, 0); }
-  function goMatter(ref){ if (S.page !== "matter") S.from = S.page; S.matter = ref; S.page = "matter"; closeSearch(); $("q").value = ""; render(); window.scrollTo(0, 0); }
+  function goMatter(ref){ if (S.page !== "matter") S.from = S.page; S.matter = ref; S.tlFilter = "all"; S.page = "matter"; closeSearch(); $("q").value = ""; render(); window.scrollTo(0, 0); }
   function setRole(r){ S.role = r; S.fe = "all"; S.page = HOME[r]; S.from = HOME[r]; render(); window.scrollTo(0, 0); }
   function setFe(id){ S.fe = id; var sel = $("feSel"); if (sel) sel.value = id; renderColpScoped(); }
   function keep(fn){ var y = window.scrollY; fn(); render(); window.scrollTo(0, y); }
@@ -1321,12 +1374,15 @@
       keep(function(){}); return;
     }
     var nf = t.closest("[data-newf]"); if (nf){ keep(function(){ S.newFilter = nf.dataset.newf; }); return; }
+    var tlf = t.closest("[data-tlf]"); if (tlf){ keep(function(){ S.tlFilter = tlf.dataset.tlf; }); return; }
     var ti = t.closest("[data-today]"); if (ti){ var item = TODAY.filter(function(x){ return x.id === ti.dataset.today; })[0];
       if (item) item.unread = false; goMatter(ti.dataset.ref); return; }
     var mf = t.closest("[data-mf]"); if (mf){ keep(function(){ S.mFilter = mf.dataset.mf; }); return; }
     var pd = t.closest("[data-pdone]"); if (pd){ keep(function(){ S.prom[pd.dataset.pdone] = "done"; }); return; }
     var pdr = t.closest("[data-pdraft]"); if (pdr){ keep(function(){ S.prom[pdr.dataset.pdraft] = "draft"; }); return; }
-    var ps = t.closest("[data-psend]"); if (ps){ keep(function(){ S.prom[ps.dataset.psend] = "sent"; }); return; }
+    var ps = t.closest("[data-psend]"); if (ps){ var dr = ps.closest(".draftbox"), tx = dr && dr.querySelector(".draft");
+      try { if (tx && navigator.clipboard) navigator.clipboard.writeText(tx.textContent).catch(function(){}); } catch (e) {}
+      keep(function(){ S.prom[ps.dataset.psend] = "sent"; }); return; }
     var pc = t.closest("[data-pcancel]"); if (pc){ keep(function(){ delete S.prom[pc.dataset.pcancel]; }); return; }
     var bd = t.closest("[data-bundle]"); if (bd){ keep(function(){ S.bundles[bd.dataset.bundle] = true; }); return; }
     var hd = t.closest("[data-hold]"); if (hd){ keep(function(){ S.holdConfirm = hd.dataset.hold; }); return; }
@@ -1371,6 +1427,7 @@
 
   render();
 })();
+  try { if (window.matchMedia("(max-width:640px)").matches) document.getElementById("q").placeholder = "Find a matter"; } catch (e) {}
 </script>
 
 </body></html>
