@@ -3,7 +3,7 @@
 The Meet Lou website and its interactive demo pages.
 
 - `site/index.html` is the marketing site: one self-contained page (styles, scripts and images inlined; fonts from Google Fonts).
-- `site/demo/` holds the demo pages, each self-contained, with fictional firms and example data: firm dashboard, client app, results report, complaint workspace and staff access log. Lou's internal tools (capture health, pilot console) are deliberately not published here.
+- `site/demo/` holds the demo pages, each self-contained, with fictional firms and example data: firm dashboard, client app, results report, complaint workspace and staff access log. Lou's internal tools (capture health, pilot console) are deliberately not published here. `site/demo/index.html` lists them. They link to each other with site-relative paths, so they work on any domain.
 
 Netlify deploys the `site/` folder on every push to `main`. There is no build step.
 
