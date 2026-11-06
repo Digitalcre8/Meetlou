@@ -309,6 +309,14 @@
   .chip{font-size:12px;font-weight:500}
   .seen{font-size:12px}
   @media (min-width:900px){ .tab{font-size:14px} }
+
+  /* planned features, 6 Nov */
+  .soon,.soonlbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .soon{display:inline-block;margin:0 4px 0 2px}
+  .askq{border-color:var(--accent);text-align:left}
+  .note p.soonlbl{font-size:9.5px;color:var(--accent);margin:0}
+  .asktext{width:100%;margin-top:8px;padding:12px;border:1px solid var(--rule);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;line-height:1.5;resize:vertical}
+  .asktext:focus{outline:2px solid var(--accent);outline-offset:1px}
 </style>
 
 <div class="stage">
@@ -325,9 +333,10 @@
           <div class="chip" id="chip">Exchange on hold</div>
         </div>
         <div class="roles" role="group" aria-label="Whose view of this matter">
-          <button class="role" data-role="client" aria-pressed="true">Sarah · buyer</button>
-          <button class="role" data-role="fee" aria-pressed="false">Daniel · conveyancer</button>
-          <button class="role" data-role="agent" aria-pressed="false">Priya · agent</button>
+          <button class="role" data-role="client" aria-pressed="true">Buyer</button>
+          <button class="role" data-role="fee" aria-pressed="false">Conveyancer</button>
+          <button class="role" data-role="agent" aria-pressed="false">Agent</button>
+          <button class="role" data-role="broker" aria-pressed="false">Broker</button>
         </div>
       </header>
 
@@ -342,6 +351,12 @@
               <p id="nextBody">Daniel has asked whether a build-over agreement exists for the 2019 extension. Hold off booking removals until we hear back.</p>
             </div>
           </div>
+
+          <button class="note askq" id="askBtn" style="width:100%;margin-top:14px">
+            <p class="soonlbl">Coming next · ask a question</p>
+            <p style="color:var(--ink);font-weight:500;font-size:13.5px;margin-top:6px">Ask Daniel a question</p>
+            <p>It's sent as an email to this matter's address, so it reaches Daniel's inbox and stays on your file.</p>
+          </button>
 
           <p class="lbl" style="margin-top:26px">Shared timeline</p>
           <div class="feed" id="feed"></div>
@@ -441,6 +456,9 @@
   /* ---------- seeded matter ---------- */
   var S = {
     events: [
+      { id:"s1", kind:"stage", meta:"Stage update · today 10:15 · coming next", chain:true,
+        title:"Searches back · one query outstanding",
+        blurb:"Confirmed by Daniel from the searches email", go:"Read →" },
       { id:"c1", kind:"call", meta:"Call · 2 min 48 · today 09:24",
         title:"Searches back — drainage query raised",
         blurb:"Summarised and on your file", go:"Read or replay →" },
@@ -576,6 +594,14 @@
   };
 
   var DOCS = {
+    s1:{ title:"Stage update: searches back", kind:"Stage update · coming next",
+      by:"Suggested by Lou from the searches email · confirmed by Daniel Hughes, today 10:15",
+      k1:"What changed", k2:"What it means",
+      plain:"All your searches are back. One query is outstanding: the drainage question Daniel raised on today's call.",
+      what:["The next stage is replies to enquiries from the seller's solicitors.",
+            "Your agent and broker see this stage too, without anyone having to ring.",
+            "Nothing changes for you today: keep holding off on removals."],
+      date:"Coming next. Stage updates are planned and not available yet. Today, progress reaches you through calls, emails and Daniel's updates." },
     d1:{ title:"Drainage and water search (CON29DW)", kind:"Document · yesterday",
       plain:"This search asks the water company what runs under and near the property. It came back showing a public sewer within three metres of the rear extension built in 2019.",
       what:["Building within three metres of a public sewer normally needs a build-over agreement from the water company.",
@@ -695,12 +721,18 @@
       bar:"<b>You are seeing Priya's view.</b> The agent sees progress on the chain and her own notes. No client advice, no recordings, no documents.",
       next:["Where this matter is",
             "Searches returned, one query outstanding",
-            "Calder &amp; Lowe are waiting on the seller's solicitors. No exchange date yet."] }
+            "Calder &amp; Lowe are waiting on the seller's solicitors. No exchange date yet."] },
+    broker: { sub:"Okafor Mortgages · progress view only",
+      tabs:["timeline","people"],
+      bar:"<b>You are seeing Rachel's view.</b> <span class=\"soon\">Coming next</span> Brokers get the same view as the agent: progress on the chain, no client advice, no recordings, no documents. It saves the \"any update?\" call before the offer deadline.",
+      next:["Where this matter is",
+            "Searches returned, one query outstanding",
+            "Calder &amp; Lowe are waiting on the seller's solicitors. The Halifax offer is valid to 14 December."] }
   };
 
   function visible(e){
     if (S.role === "fee") return true;
-    if (S.role === "agent") return !!e.chain;
+    if (S.role === "agent" || S.role === "broker") return !!e.chain;
     return !e.fee;
   }
 
@@ -718,7 +750,8 @@
       $("nextBody").innerHTML = cfg.next[2];
     }
     $("todoLbl").textContent = r === "fee" ? "What the client needs to do" : "What you need to do";
-    $("demos").hidden = (r === "agent");
+    $("demos").hidden = (r === "agent" || r === "broker");
+    $("askBtn").hidden = (r !== "client");
     tabs.forEach(function(b){ b.hidden = cfg.tabs.indexOf(b.dataset.view) < 0; });
     var cur = tabs.filter(function(b){ return b.getAttribute("aria-selected") === "true"; })[0];
     if (!cur || cur.hidden) tabs.filter(function(b){ return !b.hidden; })[0].click();
@@ -727,6 +760,8 @@
       ? '<span class="av">S</span><span><b>Sarah Whitfield</b>Buyer · 14 Meadow Road</span>'
       : r === "fee"
       ? '<span class="av">D</span><span><b>Daniel Hughes</b>Conveyancer · Calder &amp; Lowe</span>'
+      : r === "broker"
+      ? '<span class="av">R</span><span><b>Rachel Okafor</b>Mortgage broker · Okafor Mortgages</span>'
       : '<span class="av">P</span><span><b>Priya Nandra</b>Estate agent · Hamilton &amp; Reeve</span>';
     renderFeed(); renderTasks(); renderPromises(); renderDocs();
     if (mqDesk.matches) showDefaultPane(); else $("sheet").hidden = true;
@@ -807,7 +842,7 @@
         '<li>Risk flag raised: exchange blocked until the drainage query is answered.</li></ul>' +
         '<button class="ask" id="exportBtn">Export evidence bundle</button></div>';
     }
-    if (S.role === "agent"){
+    if (S.role === "agent" || S.role === "broker"){
       return '<div class="note"><p><b style="color:var(--ink);font-weight:500">Shared with you by ' +
         'Calder &amp; Lowe.</b> You can see progress on this matter. Client advice, recordings and ' +
         'documents stay with the firm and its client.</p></div>';
@@ -859,6 +894,19 @@
     stopPlayer();
     if (inPane()) parkExtras();
     var c = CALLS[id], d = DOCS[id], m = EMAILS[id], html;
+    if (id === "ask"){
+      $("sheetKind").textContent = "Ask a question · coming next";
+      html = '<h2 class="dtitle">Ask Daniel a question</h2>' +
+        '<label class="lbl" for="askText" style="display:block;margin-top:18px">Your question</label>' +
+        '<textarea id="askText" class="asktext" rows="5">Can we book removals for the 18th, or should we wait for the drainage reply?</textarea>' +
+        '<button class="ask" id="askSend">Send to Daniel</button>' +
+        '<div class="note"><p>Sent as an email from you to 14meadowroad-k7x9@matters.meetlou.app. Daniel gets it in his normal inbox, and it goes on this timeline with his reply. There is no separate chat to keep an eye on.</p>' +
+        '<p class="soonlbl" style="margin-top:10px">Coming next · not available yet</p></div>';
+      $("sheetBody").innerHTML = html; $("sheet").hidden = false; $("back").hidden = false;
+      $("sheet").querySelector("main").scrollTop = 0;
+      if (!mqDesk.matches) $("askText").focus();
+      return;
+    }
     if (c){
       $("sheetKind").textContent = c.kind;
       html = '<h2 class="dtitle">' + esc(c.title) + '</h2>' +
@@ -940,6 +988,23 @@
     if (ev.target.id === "exportBtn"){
       ev.target.outerHTML = '<p class="seen" style="text-align:center;margin-top:12px">' +
         'Bundle prepared · 1 recording, 1 transcript, 1 summary, 2 read receipts, consent log</p>';
+      return;
+    }
+    if (ev.target.closest("#askBtn")){ openSheet("ask"); return; }
+    if (ev.target.id === "askSend"){
+      var q = ($("askText").value || "").trim();
+      if (!q) { $("askText").focus(); return; }
+      var qid = "q" + Date.now();
+      EMAILS[qid] = { title: q.length > 70 ? q.slice(0, 67) + "…" : q, kind:"Email · sent from the app, just now",
+        from:"Sarah Whitfield &lt;sarah.whitfield@example.com&gt;", to:"14meadowroad-k7x9@matters.meetlou.app",
+        when:"Just now", body:q, att:[],
+        checks:["Sent from the app to the matter address","Matched to 14 Meadow Road","In Daniel's inbox and on this timeline"],
+        plain:"Your question, exactly as you sent it. Daniel replies by email or phone, and his reply lands here too.",
+        what:["Daniel usually replies within one working day.","It's on the file, so there's nothing to chase."],
+        date:"With Daniel" };
+      S.events.unshift({ id:qid, kind:"email", meta:"Email · just now · from the app", title:EMAILS[qid].title,
+        blurb:"Sent to Daniel at the matter address", go:"Read →", isNew:true, seen:"Delivered · just now" });
+      renderFeed(); openSheet(qid);
       return;
     }
     var r = ev.target.closest("[data-role]");

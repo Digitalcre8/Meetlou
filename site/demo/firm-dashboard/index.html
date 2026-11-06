@@ -399,6 +399,13 @@
   }
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 
+
+  .stg b{font-weight:600;font-size:13.5px}
+  .stg .dactions{display:flex;flex-wrap:wrap;gap:8px}
+  .stg .dactions .btn{width:auto;flex:none}
+  .stg p{margin:6px 0 0;font-size:13.5px}
+  .stg p.small{font-size:12.5px;color:var(--ink2)}
+  .nrow .nc .tag{margin-left:0;margin-right:4px}
   /* 3 Nov revision */
   .rcol{display:grid;gap:16px;align-content:start}
   .wrow{display:grid;grid-template-columns:18px minmax(0,1fr) 14px;gap:10px;width:100%;padding:11px 8px;border-radius:10px;align-items:start;text-align:left}
@@ -560,6 +567,7 @@
   ];
   /* everything that reached Daniel's matters today: calls, email, documents */
   var TODAY = [
+    { id:"t12", t:"13:58", kind:"email", dir:"in", ref:"MTR-1001", who:"Sarah Whitfield", title:"Can we book removals for the 18th?", meta:"Asked from the client app · also in your Outlook", status:null, unread:true, soon:true },
     { id:"t11", t:"13:47", kind:"email", dir:"in", ref:"MTR-1034", who:"Emma Clarke", title:"TA10 attached", meta:"1 attachment · also in your Outlook", status:["good","Matches a promise: Emma owes the TA10"], unread:true },
     { id:"t10", t:"13:20", kind:"call", dir:"in", ref:"MTR-1055", who:"Ben Ward", title:"Call with Ben Ward", meta:"8 min 04 · consent at 0:12", status:["warn","Filed · not diarised"] },
     { id:"t09", t:"12:35", kind:"doc", dir:"in", ref:"MTR-1041", who:"Pennine Survey", title:"Homebuyer report.pdf", meta:"By email from the surveyor · also in your Outlook", status:["info","Explanation to approve"], unread:true },
@@ -569,7 +577,7 @@
     { id:"t05", t:"10:12", kind:"email", dir:"out", ref:"MTR-1001", who:"The seller's solicitors", title:"Drainage query: build-over agreement", meta:"Sent from your Outlook · captured and passed on", status:null },
     { id:"t04", t:"10:05", kind:"call", dir:"in", ref:"MTR-1012", who:"Oliver Grant", title:"Call with Oliver Grant", meta:"6 min 12 · consent at 0:11", status:["info","Summary to approve"] },
     { id:"t03", t:"09:24", kind:"call", dir:"in", ref:"MTR-1001", who:"Sarah Whitfield", title:"Call from Sarah Whitfield", meta:"2 min 48 · consent at 0:16", status:["info","Note to approve"] },
-    { id:"t02", t:"08:47", kind:"doc", dir:"in", ref:"MTR-1049", who:"Halifax", title:"Mortgage offer.pdf", meta:"By email from the lender · also in your Outlook", status:null, unread:true },
+    { id:"t02", t:"08:47", kind:"doc", dir:"in", ref:"MTR-1049", who:"Halifax", title:"Mortgage offer.pdf", meta:"By email from the lender · also in your Outlook", status:null, unread:true, stage:true },
     { id:"t01", t:"08:12", kind:"email", dir:"in", ref:"MTR-1019", who:"Laura Byrne", title:"Completion statement: quick question", meta:"Also in your Outlook", status:null, unread:true }
   ];
   var TODAY_KIND = "all";
@@ -675,9 +683,22 @@
     h += '<section class="card"><div class="h2row"><h2>To do</h2><span class="note">' + (nA + nO ? (nA + nO) + " left" : "All done") + '</span></div>' +
       todoGroup("Approve before anyone relies on it", approvals()) +
       todoGroup("Overdue", QUEUE.filter(function(q){ return q.kind === "overdue"; })) + '</section>';
-    h += '<div class="rcol">' + newToday() + watchCard() + '</div>';
+    h += '<div class="rcol">' + newToday() + stageCard() + watchCard() + '</div>';
     h += '</div>';
     return h;
+  }
+  /* planned: stage updates between calls, suggested from captured email and confirmed by the fee earner */
+  function stageCard(){
+    var m = byRef["MTR-1049"];
+    var body = S.stage1049 === "done"
+      ? '<span class="okmsg">' + icon("good") + 'Confirmed · George, his agent and his broker can see it</span>'
+      : S.stage1049 === "no" ? '<span class="small">Left as it was. Lou won\'t suggest it again for this email.</span>'
+      : '<div class="dactions" style="margin-top:10px"><button class="btn pri" data-stage="done">Confirm</button><button class="btn" data-stage="no">Not yet</button></div>';
+    return '<section class="card"><div class="h2row"><h2>Stage updates</h2><span class="tag">Coming next</span></div>' +
+      '<div class="stg"><b>' + esc(shortAddr(m)) + ' <span class="who2">· ' + esc(m.client) + '</span></b>' +
+      '<p>The Halifax mortgage offer arrived at 08:47. Show the client, agent and broker <b>Mortgage offer received</b>?</p>' +
+      '<p class="small">George hasn\'t had an update in ' + (S.stage1049 === "done" ? '15 days. Now he has.' : '15 days.') + ' Nothing changes for them until you confirm.</p>' +
+      body + '</div></section>';
   }
   function watchCard(){
     var list = QUEUE.filter(function(q){ return q.kind === "risk" || q.kind === "mono"; });
@@ -733,7 +754,9 @@
         return '<button class="nrow' + (i.unread ? " unread" : "") + '" data-today="' + i.id + '" data-ref="' + i.ref + '">' +
           '<span class="nt num">' + i.t + '</span><span>' + glyph(i.kind) + '</span>' +
           '<span><b>' + esc(shortAddr(m)) + '</b><span class="nd">' + esc(newDesc(i)) + '</span>' +
-          (i.status && i.status[0] === "good" ? '<span class="nc">' + chip(i.status[0], i.status[1]) + '</span>' : '') + '</span></button>';
+          (i.status && i.status[0] === "good" ? '<span class="nc">' + chip(i.status[0], i.status[1]) + '</span>' : '') +
+          (i.soon ? '<span class="nc"><span class="tag">Coming next</span> Sent from the app to the matter address</span>' : '') +
+          (i.stage ? '<span class="nc"><span class="tag">Coming next</span> Suggests a stage update</span>' : '') + '</span></button>';
       }).join("") : '<p class="small" style="margin:6px 0 0">Nothing unread. <button class="linkbtn" data-newf="all">See everything from today</button></p>') +
       '</section>';
   }
@@ -1195,6 +1218,8 @@
      ============================================================ */
   function timelineFor(m){
     if (m.ref === "MTR-1001") return [
+      ["Email · today 13:58","Can we book removals for the 18th?","Client can see","Asked from the client app · coming next"],
+      ["Stage · today 10:15","Searches back · one query outstanding","Client and agent can see","Confirmed by Daniel from the searches email · broker sees it too · coming next"],
       ["Email · today 10:12","Drainage query sent to the seller's solicitors","Firm only","Sent from Daniel's Outlook · captured"],
       ["Call · today 09:24","Searches back — drainage query raised","Client can see","Approved summary read by Sarah · 09:58" +
         (QUEUE[0].done ? " · attendance note approved" : " · attendance note waiting for you")],
@@ -1277,6 +1302,10 @@
       : '<p class="small" style="margin:0">Nothing outstanding.</p>') + '</section>';
     h += '<section class="card"><div class="h2row"><h2>Contact details</h2></div><p class="small" style="margin:0 0 8px">What the client calls and writes to. Everything sent here lands on this timeline and in ' + fe.short + '\'s inbox.</p>' +
       '<div class="mono-line">0161 496 04' + ("0" + (+m.ref.slice(4) % 100)).slice(-2) + '</div><div class="mono-line">' + slugFor(m) + '@matters.meetlou.app</div></section>';
+    var who = [[m.client, "Client · everything you approve"]];
+    if (m.ref === "MTR-1001") who.push(["Priya Nandra", "Estate agent · progress only"], ["Rachel Okafor", "Mortgage broker · progress only", true]);
+    h += '<section class="card"><div class="h2row"><h2>Who can see this matter</h2></div>' + who.map(function(x){
+        return '<div class="prom"><div><b>' + esc(x[0]) + (x[2] ? ' <span class="tag">Coming next</span>' : '') + '</b><span class="m">' + esc(x[1]) + '</span></div></div>'; }).join("") + '</section>';
     h += '<section class="card"><div class="h2row"><h2>Actions</h2></div><div class="dactions" style="margin-top:0">';
     h += S.bundles[m.ref] ? '<div class="result"><b>Bundle prepared</b> · recordings, transcripts, approved summaries, email, documents, read receipts and the consent log, in date order.</div>'
                           : '<button class="wide" data-bundle="' + m.ref + '">Export evidence bundle</button>';
@@ -1374,6 +1403,8 @@
       keep(function(){}); return;
     }
     var nf = t.closest("[data-newf]"); if (nf){ keep(function(){ S.newFilter = nf.dataset.newf; }); return; }
+    var sg = t.closest("[data-stage]"); if (sg){ keep(function(){ S.stage1049 = sg.dataset.stage;
+      if (sg.dataset.stage === "done"){ var w = byRef["MTR-1049"]; w.upd = 0; w.stage = Math.max(w.stage, 2); w.next = "Mortgage offer received · report on title next"; } }); return; }
     var tlf = t.closest("[data-tlf]"); if (tlf){ keep(function(){ S.tlFilter = tlf.dataset.tlf; }); return; }
     var ti = t.closest("[data-today]"); if (ti){ var item = TODAY.filter(function(x){ return x.id === ti.dataset.today; })[0];
       if (item) item.unread = false; goMatter(ti.dataset.ref); return; }
