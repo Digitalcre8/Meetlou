@@ -431,6 +431,22 @@
   @media (max-width:640px){
     .tabbar .navlink{flex-direction:row;gap:6px}
   }
+  /* WhatsApp export import (coming next) */
+  .wanote{margin:0;font-size:12.5px;color:var(--ink2)}
+  .wamap{display:grid;gap:10px;margin-top:12px;padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--panel)}
+  .wamap .r{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;font-size:13px}
+  .wamap .r label{min-width:110px;font-weight:500}
+  .wamsgs{margin-top:12px}
+  .wam{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 14px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px}
+  .wam:first-child{border-top:0}
+  .wam .wn{font-weight:600}
+  .wam .wn.raw{font-weight:500;color:var(--ink2)}
+  .wam .wt{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted);font-weight:400;margin-top:1px}
+  .wam .ph{color:var(--muted);font-style:italic}
+  .wafoot{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--rule)}
+  @media (max-width:640px){.wam{grid-template-columns:minmax(0,1fr)}}
+  .mpage .h2row{flex-wrap:wrap}
+  .mpage .seg{max-width:100%;overflow-x:auto}
 </style>
 
 <div class="demobar">Demo firm · example data, not real client files</div>
@@ -570,6 +586,7 @@
     { id:"t12", t:"13:58", kind:"email", dir:"in", ref:"MTR-1001", who:"Sarah Whitfield", title:"Can we book removals for the 18th?", meta:"Asked from the client app · also in your Outlook", status:null, unread:true, soon:true },
     { id:"t11", t:"13:47", kind:"email", dir:"in", ref:"MTR-1034", who:"Emma Clarke", title:"TA10 attached", meta:"1 attachment · also in your Outlook", status:["good","Matches a promise: Emma owes the TA10"], unread:true },
     { id:"t10", t:"13:20", kind:"call", dir:"in", ref:"MTR-1055", who:"Ben Ward", title:"Call with Ben Ward", meta:"8 min 04 · consent at 0:12", status:["warn","Filed · not diarised"] },
+    { id:"t13", t:"12:52", kind:"wa", dir:"in", ref:"MTR-1001", who:"Sarah Whitfield", title:"WhatsApp chat imported", meta:"Exported from WhatsApp and emailed to the matter address by you", status:null, unread:true, wa:true },
     { id:"t09", t:"12:35", kind:"doc", dir:"in", ref:"MTR-1041", who:"Pennine Survey", title:"Homebuyer report.pdf", meta:"By email from the surveyor · also in your Outlook", status:["info","Explanation to approve"], unread:true },
     { id:"t08", t:"11:58", kind:"call", dir:"in", ref:"MTR-1034", who:"Emma Clarke", title:"Call from Emma Clarke", meta:"9 seconds", status:["info","Not filed · too short"] },
     { id:"t07", t:"11:20", kind:"email", dir:"in", ref:"MTR-1055", who:"Ben Ward", title:"Our buyer might pull out", meta:"Also in your Outlook", status:null },
@@ -583,6 +600,7 @@
   var TODAY_KIND = "all";
   function glyph(kind){
     var p = kind === "call" ? '<path d="M5.5 2.5h2l1 3-1.5 1a8 8 0 0 0 4 4l1-1.5 3 1v2a1.5 1.5 0 0 1-1.5 1.5A11.5 11.5 0 0 1 2.5 4 1.5 1.5 0 0 1 4 2.5z"/>'
+          : kind === "wa" ? '<path d="M3.2 14.8 4 11.9A6.3 6.3 0 1 1 6.3 14z"/><path d="M6.6 8.4h4.8M6.6 10.6h3"/>'
           : kind === "email" ? '<rect x="2" y="3.5" width="14" height="11" rx="1.5"/><path d="m2.5 4.5 6.5 5.2 6.5-5.2"/>'
           : '<path d="M4.5 1.8h6l3.5 3.5v10.9h-9.5z"/><path d="M10.5 1.8v3.5h3.5"/><path d="M7 9.5h5M7 12.3h3.5"/>';
     return '<svg viewBox="0 0 18 18" aria-hidden="true" style="width:16px;height:16px;fill:none;stroke:var(--ink2);stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round">' + p + '</svg>';
@@ -643,7 +661,8 @@
 
   /* ---------------- state ---------------- */
   var S = { role:"fee", page:"today", from:"today", matter:null, range:12, fe:"all", holds:["MTR-0988"], retention:"15", retentionPending:null, bundles:{},
-    open:{}, editing:{}, edits:{}, played:{}, newFilter:"unread", mFilter:"all", mSort:"urgent", prom:{}, holdConfirm:null, holdAsked:{} };
+    open:{}, editing:{}, edits:{}, played:{}, newFilter:"unread", mFilter:"all", mSort:"urgent", prom:{}, holdConfirm:null, holdAsked:{},
+    waMap:{ "Sarah W":"Sarah Whitfield", "Daniel":"Daniel Hughes" }, waNamesDone:false, waShared:false };
 
   /* ============================================================
      FEE EARNER: Today, Matters, Promises
@@ -740,6 +759,7 @@
     return h + '</div>';
   }
   function newDesc(i){
+    if (i.kind === "wa") return "WhatsApp chat with " + i.who + " imported · " + WA_MSGS.length + " messages";
     if (i.kind === "call") return (i.dir === "in" ? "Call from " : "Call to ") + i.who + " · " + i.meta.split(" · ")[0];
     if (i.kind === "email") return (i.dir === "in" ? "Email from " : "Email to ") + i.who + " · " + i.title;
     return "Document from " + i.who + " · " + i.title;
@@ -756,7 +776,8 @@
           '<span><b>' + esc(shortAddr(m)) + '</b><span class="nd">' + esc(newDesc(i)) + '</span>' +
           (i.status && i.status[0] === "good" ? '<span class="nc">' + chip(i.status[0], i.status[1]) + '</span>' : '') +
           (i.soon ? '<span class="nc"><span class="tag">Coming next</span> Sent from the app to the matter address</span>' : '') +
-          (i.stage ? '<span class="nc"><span class="tag">Coming next</span> Suggests a stage update</span>' : '') + '</span></button>';
+          (i.stage ? '<span class="nc"><span class="tag">Coming next</span> Suggests a stage update</span>' : '') +
+          (i.wa ? '<span class="nc"><span class="tag">Coming next</span> Filed as an import, not captured by Lou</span>' : '') + '</span></button>';
       }).join("") : '<p class="small" style="margin:6px 0 0">Nothing unread. <button class="linkbtn" data-newf="all">See everything from today</button></p>') +
       '</section>';
   }
@@ -1171,7 +1192,7 @@
     h += '<section class="block grid g2e">';
     h += '<div class="card"><div class="h2row"><h2>Plan and seats</h2><span class="note">Founding Firm</span></div>' +
       '<dl class="kv"><dt>Price per fee earner</dt><dd>£99 / month · locked for life</dd><dt>Seats in use</dt><dd>4 of 4</dd>' +
-      '<dt>Monthly total</dt><dd>£396, excluding VAT</dd><dt>Minimum term</dt><dd>None during the pilot</dd></dl>' +
+      '<dt>Monthly total</dt><dd>£396, excluding VAT</dd><dt>Minimum term</dt><dd>None during the three free months</dd></dl>' +
       '<div class="lines" style="margin-top:16px">' + FEE.map(function(f){ return '<div class="line"><div>' + f.name + '<span class="m">Fee earner · ' + f.matters + ' active matters</span></div><span class="small">Seat active</span></div>'; }).join("") + '</div></div>';
     h += '<div class="card"><div class="h2row"><h2>Consent announcement</h2>' + chip("good","Approved by the compliance officer") + '</div>' +
       '<p class="small" style="margin:0">Played before every recording on the matter line. This is the consent, so changing it needs Helen Barker\'s approval.</p>' +
@@ -1213,12 +1234,50 @@
     return '<div class="pending">Change to <b>' + S.retentionPending + ' years</b> is waiting for Helen Barker\'s approval. Nothing changes until she confirms.</div>';
   }
 
+  /* ---------------- WhatsApp export imported to MTR-1001 (coming next) ---------------- */
+  var WA_MSGS = [
+    ["1 Sep · 19:42","Sarah W","Hi Daniel, sorry to message so late. Any news on the searches?"],
+    ["1 Sep · 19:50","Daniel","Hi Sarah, they're due back this week. I'll call you as soon as they land."],
+    ["2 Sep · 08:15","Sarah W","Thanks. The agent says the sellers want to complete mid-September. Is that realistic?"],
+    ["2 Sep · 08:31","Daniel","Possibly, but not until the searches are back and any queries are answered. Please don't book removals yet."],
+    ["2 Sep · 08:32","Sarah W",null],
+    ["2 Sep · 08:33","Sarah W","That's the extension at the back, in case it matters for the survey."]
+  ];
+  var WA_WHO = { "Sarah W":[["Sarah Whitfield","Sarah Whitfield · client"],["Priya Nandra","Priya Nandra · estate agent"],["Someone else","Someone else"]],
+                 "Daniel":[["Daniel Hughes","Daniel Hughes · you"],["Someone else","Someone else"]] };
+  function waCard(){
+    var names = Object.keys(WA_WHO);
+    var h = '<section class="card"><div class="h2row"><h2>WhatsApp chat imported</h2><span class="tag">Coming next</span></div>' +
+      '<p class="wanote">You exported this chat from WhatsApp and emailed it to the matter address today at 12:52. Lou keeps the original file unchanged and files each message here. ' +
+      'Because an export can be edited before it\'s sent, it\'s marked as an import, never as something Lou captured.</p>';
+    if (!S.waNamesDone){
+      h += '<div class="wamap"><span class="eyebrow">Who\'s who in this chat · names come from your phone contacts</span>' +
+        names.map(function(n, i){
+          return '<div class="r"><label for="waSel' + i + '">“' + esc(n) + '” is</label><select id="waSel' + i + '" data-wa="' + esc(n) + '">' +
+            WA_WHO[n].map(function(o){ return '<option value="' + esc(o[0]) + '"' + (S.waMap[n] === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join("") +
+            '</select></div>';
+        }).join("") +
+        '<div class="r"><button class="btn pri" data-wa-confirm="1">Confirm names</button><span class="small">Remembered for this matter only.</span></div></div>';
+    }
+    h += '<div class="wamsgs">' + WA_MSGS.map(function(w){
+      var raw = !S.waNamesDone || S.waMap[w[1]] === "Someone else";
+      var who = raw ? w[1] : S.waMap[w[1]];
+      return '<div class="wam"><div><span class="wn' + (raw ? ' raw' : '') + '">' + esc(who) + '</span><span class="wt">' + esc(w[0]) + '</span></div>' +
+        '<div>' + (w[2] ? esc(w[2]) : '<span class="ph">Photo sent · not included in the export</span>') + '</div></div>';
+    }).join("") + '</div>';
+    h += '<div class="wafoot">' + (S.waShared ? chip("good", "Client can see") + '<span class="small">Approved by you · Sarah sees it on her timeline</span>'
+        : chip("info", "Firm only") + (S.waNamesDone ? '<button class="btn" data-wa-share="1">Show on Sarah\'s timeline</button>' : '<span class="small">Confirm the names first</span>')) +
+      '<span class="small" style="margin-left:auto">Imported by Daniel Hughes · today 12:52</span></div></section>';
+    return h;
+  }
+
   /* ============================================================
      MATTER TIMELINE CONTENT
      ============================================================ */
   function timelineFor(m){
     if (m.ref === "MTR-1001") return [
       ["Email · today 13:58","Can we book removals for the 18th?","Client can see","Asked from the client app · coming next"],
+      ["WhatsApp · today 12:52","Chat with Sarah imported · " + WA_MSGS.length + " messages, 1 to 2 Sep", S.waShared ? "Client can see" : "Firm only","Imported from a WhatsApp export by Daniel · coming next"],
       ["Stage · today 10:15","Searches back · one query outstanding","Client and agent can see","Confirmed by Daniel from the searches email · broker sees it too · coming next"],
       ["Email · today 10:12","Drainage query sent to the seller's solicitors","Firm only","Sent from Daniel's Outlook · captured"],
       ["Call · today 09:24","Searches back — drainage query raised","Client can see","Approved summary read by Sarah · 09:58" +
@@ -1256,7 +1315,7 @@
   function matterEvents(m){
     if (m.ref === "MTR-1001" || m.ref === "MTR-0988") return timelineFor(m);
     var today = TODAY.filter(function(i){ return i.ref === m.ref; }).map(function(i){
-      var kind = i.kind === "doc" ? "Document" : i.kind === "call" ? "Call" : "Email";
+      var kind = i.kind === "doc" ? "Document" : i.kind === "call" ? "Call" : i.kind === "wa" ? "WhatsApp" : "Email";
       var vis = i.dir === "out" && i.kind === "email" ? "Firm only" : /agent/i.test(i.who + i.title) ? "Firm only" : "Client can see";
       return [kind + " · today " + i.t, newDesc(i), vis, i.meta];
     });
@@ -1283,11 +1342,12 @@
     h += '<div class="standline">' + stand + '<span class="nx"><span class="eyebrow">Next</span>' + esc(m.next) + '</span>' +
       '<span class="nx"><span class="eyebrow">Client last updated</span><span class="upd' + (m.upd > STALE_DAYS ? ' stale' : '') + '">' + updLabel(m.upd) + '</span></span></div>';
     h += '<div class="mpage"><div class="grid" style="align-content:start">';
+    if (m.ref === "MTR-1001") h += waCard();
     var evs = matterEvents(m), tf = S.tlFilter || "all";
     var kindOf = function(e){ return e[0].split(" · ")[0]; };
     var shown = evs.filter(function(e){ return tf === "all" || kindOf(e) === tf; });
     h += '<section class="card"><div class="h2row"><h2>Shared timeline</h2><div class="seg" role="group" aria-label="Show">' +
-      [["all","Everything"],["Call","Calls"],["Email","Emails"],["Document","Documents"]].map(function(f){
+      [["all","Everything"],["Call","Calls"],["Email","Emails"],["WhatsApp","WhatsApp"],["Document","Documents"]].map(function(f){
         return '<button data-tlf="' + f[0] + '" aria-pressed="' + (tf === f[0]) + '">' + f[1] + '</button>'; }).join("") + '</div></div>' +
       (shown.length ? '' : '<p class="small" style="margin:8px 0 0">Nothing of that kind on this matter yet.</p>') +
       shown.map(function(e){
@@ -1405,6 +1465,8 @@
     var nf = t.closest("[data-newf]"); if (nf){ keep(function(){ S.newFilter = nf.dataset.newf; }); return; }
     var sg = t.closest("[data-stage]"); if (sg){ keep(function(){ S.stage1049 = sg.dataset.stage;
       if (sg.dataset.stage === "done"){ var w = byRef["MTR-1049"]; w.upd = 0; w.stage = Math.max(w.stage, 2); w.next = "Mortgage offer received · report on title next"; } }); return; }
+    if (t.closest("[data-wa-confirm]")){ keep(function(){ S.waNamesDone = true; }); return; }
+    if (t.closest("[data-wa-share]")){ keep(function(){ S.waShared = true; }); return; }
     var tlf = t.closest("[data-tlf]"); if (tlf){ keep(function(){ S.tlFilter = tlf.dataset.tlf; }); return; }
     var ti = t.closest("[data-today]"); if (ti){ var item = TODAY.filter(function(x){ return x.id === ti.dataset.today; })[0];
       if (item) item.unread = false; goMatter(ti.dataset.ref); return; }
@@ -1446,6 +1508,7 @@
     var id = e.target.id;
     if (id === "roleSel" || id === "roleSelM") setRole(e.target.value);
     if (id === "feSel") setFe(e.target.value);
+    if (e.target.dataset && e.target.dataset.wa){ S.waMap[e.target.dataset.wa] = e.target.value; }
     if (id === "mSort"){ keep(function(){ S.mSort = e.target.value; }); }
     if (id === "ret"){
       var v = e.target.value;
